@@ -8,7 +8,8 @@ Open any Markdown note, choose a direction, and read. The plugin never modifies 
 
 - **Forward** or the right pedal starts continuous forward scrolling.
 - **Reverse** or the left pedal starts continuous reverse scrolling.
-- Pressing the opposite pedal changes direction immediately.
+- While the text is moving, pressing either pedal pauses it.
+- To change direction, press once to pause and then press the pedal for the new direction.
 - **Pause/Resume** or `Space` pauses and resumes the last direction.
 - `ArrowRight`, `ArrowDown`, and `PageDown` act as the right pedal.
 - `ArrowLeft`, `ArrowUp`, and `PageUp` act as the left pedal.
@@ -42,4 +43,3 @@ npm run check
 ```
 
 The release contains exactly `main.js`, `manifest.json`, and `styles.css`.
-

@@ -75,7 +75,7 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Bluetooth pedals").setHeading();
     containerEl.createEl("p", {
       cls: "setting-item-description jst-settings-intro",
-      text: "Automatic mode accepts arrow keys and Page Up/Page Down. Use Learn only if your pedal sends different keys."
+      text: "When paused, right starts forward and left starts reverse. While moving, either pedal pauses. Automatic mode accepts arrow keys and Page Up/Page Down."
     });
 
     this.addPedalSetting("Left pedal", "reverse", "leftPedalBinding");

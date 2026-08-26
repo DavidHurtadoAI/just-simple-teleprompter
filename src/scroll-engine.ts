@@ -88,6 +88,19 @@ export class ScrollEngine {
     this.speed = clampSpeed(speed);
   }
 
+  press(direction: ScrollDirection): void {
+    if (this.destroyed) {
+      return;
+    }
+
+    if (this.running) {
+      this.pause();
+      return;
+    }
+
+    this.start(direction);
+  }
+
   start(direction: ScrollDirection): void {
     if (this.destroyed) {
       return;

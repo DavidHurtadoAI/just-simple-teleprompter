@@ -73,34 +73,50 @@ describe("ScrollEngine", () => {
     expect(target.scrollTop).toBe(104);
   });
 
-  it("treats repeated presses in the same direction as idempotent", () => {
-    const target = viewport(100);
-    const scheduler = new FakeScheduler();
-    const onMotionChange = vi.fn();
-    const engine = new ScrollEngine(target, 40, { onMotionChange }, scheduler);
-
-    engine.start(1);
-    const pendingBefore = scheduler.callbacks.size;
-    engine.start(1);
-
-    expect(engine.motionState).toBe("forward");
-    expect(scheduler.callbacks.size).toBe(pendingBefore);
-    expect(onMotionChange).toHaveBeenCalledTimes(1);
-  });
-
-  it("reverses immediately without creating a second animation loop", () => {
+  it.each([
+    [1, "forward"],
+    [-1, "reverse"]
+  ] as const)("starts direction %s when its pedal is pressed while paused", (direction, state) => {
     const target = viewport(100);
     const scheduler = new FakeScheduler();
     const engine = new ScrollEngine(target, 40, {}, scheduler);
 
-    engine.start(1);
-    scheduler.runNext(0);
-    engine.start(-1);
+    engine.press(direction);
+
+    expect(engine.motionState).toBe(state);
+    expect(scheduler.callbacks.size).toBe(1);
+  });
+
+  it.each([
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1]
+  ] as const)("pauses when pedal %s is pressed while moving in direction %s", (pedal, movement) => {
+    const target = viewport(100);
+    const scheduler = new FakeScheduler();
+    const engine = new ScrollEngine(target, 40, {}, scheduler);
+
+    engine.press(movement);
+    engine.press(pedal);
+
+    expect(engine.motionState).toBe("paused");
+    expect(engine.currentDirection).toBe(movement);
+    expect(scheduler.callbacks.size).toBe(0);
+  });
+
+  it("uses the newly selected direction on the next press after stopping", () => {
+    const target = viewport(100);
+    const scheduler = new FakeScheduler();
+    const engine = new ScrollEngine(target, 40, {}, scheduler);
+
+    engine.press(1);
+    engine.press(-1);
+    engine.press(-1);
 
     expect(engine.motionState).toBe("reverse");
+    expect(engine.currentDirection).toBe(-1);
     expect(scheduler.callbacks.size).toBe(1);
-    scheduler.runNext(100);
-    expect(target.scrollTop).toBe(96);
   });
 
   it("pauses at a boundary and reports which boundary was reached", () => {

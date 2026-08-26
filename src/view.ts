@@ -132,7 +132,7 @@ export class TeleprompterView extends FileView {
 
     const transport = controls.createDiv({ cls: "jst-transport" });
     this.createIconButton(transport, "arrow-up", "Reverse", "jst-transport-button", () => {
-      this.engine?.start(-1);
+      this.engine?.press(-1);
     });
     this.playButton = this.createIconButton(
       transport,
@@ -142,7 +142,7 @@ export class TeleprompterView extends FileView {
       () => this.engine?.toggle()
     );
     this.createIconButton(transport, "arrow-down", "Forward", "jst-transport-button", () => {
-      this.engine?.start(1);
+      this.engine?.press(1);
     });
 
     this.rootEl = root;
@@ -245,10 +245,10 @@ export class TeleprompterView extends FileView {
 
     switch (action) {
       case "forward":
-        this.engine.start(1);
+        this.engine.press(1);
         break;
       case "reverse":
-        this.engine.start(-1);
+        this.engine.press(-1);
         break;
       case "toggle":
         this.engine.toggle();

@@ -9,6 +9,7 @@ export interface TeleprompterSettings {
   fontSize: number;
   lineHeight: number;
   mirrorHorizontally: boolean;
+  mirrorVertically: boolean;
   keepAwake: boolean;
   leftPedalBinding: string | null;
   rightPedalBinding: string | null;
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: TeleprompterSettings = {
   fontSize: 44,
   lineHeight: 1.35,
   mirrorHorizontally: false,
+  mirrorVertically: false,
   keepAwake: true,
   leftPedalBinding: null,
   rightPedalBinding: null
@@ -35,6 +37,7 @@ export function mergeSettings(
       stored?.mirrorHorizontally,
       DEFAULT_SETTINGS.mirrorHorizontally
     ),
+    mirrorVertically: validBoolean(stored?.mirrorVertically, DEFAULT_SETTINGS.mirrorVertically),
     keepAwake: validBoolean(stored?.keepAwake, DEFAULT_SETTINGS.keepAwake),
     leftPedalBinding: validBinding(stored?.leftPedalBinding),
     rightPedalBinding: validBinding(stored?.rightPedalBinding)

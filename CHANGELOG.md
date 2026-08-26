@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Add independent horizontal and vertical text mirroring that can be combined.
+- Make the on-screen transport and speed controls more compact.
+
 ## 0.1.2
 
 - Validate the plugin with Obsidian's official ESLint rules in CI.

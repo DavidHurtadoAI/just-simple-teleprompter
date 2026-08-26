@@ -12,6 +12,7 @@ describe("mergeSettings", () => {
       fontSize: Number.NaN,
       lineHeight: -4,
       mirrorHorizontally: "yes",
+      mirrorVertically: "yes",
       keepAwake: false,
       leftPedalBinding: "not-a-binding",
       rightPedalBinding: "code:PageDown"
@@ -22,9 +23,22 @@ describe("mergeSettings", () => {
       fontSize: DEFAULT_SETTINGS.fontSize,
       lineHeight: 1,
       mirrorHorizontally: false,
+      mirrorVertically: false,
       keepAwake: false,
       leftPedalBinding: null,
       rightPedalBinding: "code:PageDown"
+    });
+  });
+
+  it("keeps horizontal and vertical mirroring independent", () => {
+    expect(
+      mergeSettings({
+        mirrorHorizontally: true,
+        mirrorVertically: true
+      })
+    ).toMatchObject({
+      mirrorHorizontally: true,
+      mirrorVertically: true
     });
   });
 });

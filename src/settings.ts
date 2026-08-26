@@ -57,11 +57,20 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
       },
       {
         name: "Mirror text horizontally",
-        desc: "For teleprompters that use reflective glass.",
+        desc: "Flip the text from left to right.",
         control: {
           type: "toggle",
           key: "mirrorHorizontally",
           defaultValue: DEFAULT_SETTINGS.mirrorHorizontally
+        }
+      },
+      {
+        name: "Mirror text vertically",
+        desc: "Flip the text from top to bottom.",
+        control: {
+          type: "toggle",
+          key: "mirrorVertically",
+          defaultValue: DEFAULT_SETTINGS.mirrorVertically
         }
       },
       {
@@ -110,6 +119,7 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
         }
         break;
       case "mirrorHorizontally":
+      case "mirrorVertically":
       case "keepAwake":
         if (typeof value === "boolean") {
           await this.teleprompter.updateSettings({ [key]: value });
@@ -170,6 +180,7 @@ function isSettingKey(key: string): key is SettingKey {
     "fontSize",
     "lineHeight",
     "mirrorHorizontally",
+    "mirrorVertically",
     "keepAwake",
     "leftPedalBinding",
     "rightPedalBinding"

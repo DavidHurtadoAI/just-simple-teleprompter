@@ -24,6 +24,8 @@ Custom pedal keys can be learned from the plugin settings. Pedals must present t
 
 The screen controls hide while the text is moving and return when the view is touched or paused.
 
+Horizontal and vertical text mirroring can be enabled independently. Enable both when the physical setup requires a 180-degree flip. Mirroring affects only the reader; controls remain normally oriented.
+
 ## Mobile support
 
 The runtime uses only Obsidian and browser APIs. It does not depend on Node.js or Electron and declares `isDesktopOnly: false`.

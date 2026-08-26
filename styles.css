@@ -24,6 +24,8 @@
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
+  transform: scale(var(--jst-mirror-x, 1), var(--jst-mirror-y, 1));
+  transform-origin: center;
 }
 
 .jst-scroll::-webkit-scrollbar {
@@ -40,11 +42,14 @@
   font-size: var(--jst-font-size);
   line-height: var(--jst-line-height);
   overflow-wrap: anywhere;
-  transform-origin: center top;
 }
 
-.jst-reader.is-mirrored {
-  transform: scaleX(-1);
+.jst-scroll.is-mirrored-horizontally {
+  --jst-mirror-x: -1;
+}
+
+.jst-scroll.is-mirrored-vertically {
+  --jst-mirror-y: -1;
 }
 
 .jst-reader .jst-spacer-top {
@@ -166,8 +171,8 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: min(100%, 560px);
-  padding: 28px 18px max(18px, env(safe-area-inset-bottom));
+  width: min(100%, 440px);
+  padding: 20px 14px max(12px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0));
   pointer-events: auto;
@@ -181,19 +186,19 @@
 }
 
 .jst-speed-controls {
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .jst-speed {
-  min-width: 72px;
+  min-width: 64px;
   color: #d2d2d2;
   font-size: 13px;
   text-align: center;
 }
 
 .jst-transport {
-  gap: clamp(12px, 5vw, 28px);
+  gap: clamp(8px, 3vw, 16px);
 }
 
 .jst-root button.jst-small-button,
@@ -212,23 +217,23 @@
 }
 
 .jst-root button.jst-small-button {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   padding: 0;
 }
 
 .jst-root button.jst-transport-button {
-  width: 68px;
-  height: 68px;
-  min-width: 68px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
   padding: 0;
 }
 
 .jst-root button.jst-transport-button.is-primary {
-  width: 78px;
-  height: 78px;
-  min-width: 78px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
   color: #101010;
   background: #f4f4f4;
   border-color: transparent;
@@ -244,13 +249,13 @@
 }
 
 .jst-transport-button svg {
-  width: 28px;
-  height: 28px;
+  width: 21px;
+  height: 21px;
 }
 
 .jst-transport-button.is-primary svg {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .jst-key-capture-modal {
@@ -277,17 +282,6 @@
     padding-inline: 22px;
   }
 
-  .jst-root button.jst-transport-button {
-    width: 64px;
-    height: 64px;
-    min-width: 64px;
-  }
-
-  .jst-root button.jst-transport-button.is-primary {
-    width: 74px;
-    height: 74px;
-    min-width: 74px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

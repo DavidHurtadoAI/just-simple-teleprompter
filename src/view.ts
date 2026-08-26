@@ -96,7 +96,8 @@ export class TeleprompterView extends FileView {
     const settings = this.plugin.settings;
     this.rootEl?.style.setProperty("--jst-font-size", `${settings.fontSize}px`);
     this.rootEl?.style.setProperty("--jst-line-height", settings.lineHeight.toString());
-    this.readerEl?.toggleClass("is-mirrored", settings.mirrorHorizontally);
+    this.scrollEl?.toggleClass("is-mirrored-horizontally", settings.mirrorHorizontally);
+    this.scrollEl?.toggleClass("is-mirrored-vertically", settings.mirrorVertically);
     this.engine?.setSpeed(settings.speed);
     this.updateSpeedLabel();
     void this.wakeLock.setEnabled(settings.keepAwake);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.6
+
+- Place transport and reading controls on one horizontal bar.
+- Adapt button sizes and value visibility for narrow phone screens without wrapping.
+
 ## 0.1.5
 
 - Refresh an open teleprompter automatically when its source note changes.

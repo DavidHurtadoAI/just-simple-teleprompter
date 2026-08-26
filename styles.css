@@ -171,8 +171,13 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: min(100%, 400px);
-  padding: 14px 12px max(10px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(100%, 720px);
+  padding: 14px 16px max(10px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0));
   pointer-events: auto;
@@ -187,13 +192,25 @@
 }
 
 .jst-reading-controls {
-  flex-wrap: wrap;
-  gap: 6px 8px;
-  margin-bottom: 7px;
+  flex: 0 1 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  min-width: 0;
+  gap: 8px;
 }
 
 .jst-compact-control {
-  gap: 4px;
+  flex: none;
+  gap: 3px;
+}
+
+.jst-control-label {
+  min-width: 12px;
+  color: #bdbdbd;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
 }
 
 .jst-speed,
@@ -203,15 +220,22 @@
   text-align: center;
 }
 
-.jst-speed {
-  min-width: 54px;
-}
-
-.jst-font-size {
-  min-width: 42px;
+.jst-compact-value {
+  position: absolute;
+  width: 1px;
+  min-width: 0;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
 }
 
 .jst-transport {
+  flex: none;
   gap: clamp(7px, 2.5vw, 12px);
 }
 
@@ -310,6 +334,124 @@
 @media (max-width: 600px) {
   .jst-reader {
     padding-inline: 22px;
+  }
+
+  .jst-controls {
+    gap: 6px;
+    padding: 10px 6px max(8px, env(safe-area-inset-bottom));
+  }
+
+  .jst-reading-controls {
+    gap: 4px;
+  }
+
+  .jst-compact-control {
+    gap: 2px;
+  }
+
+  .jst-root button.jst-small-button {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+  }
+
+  .jst-root button.jst-transport-button {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .jst-root button.jst-transport-button.is-primary {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+  }
+
+  .jst-transport {
+    gap: 4px;
+  }
+
+  .jst-small-button svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .jst-transport-button svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .jst-transport-button.is-primary svg {
+    width: 19px;
+    height: 19px;
+  }
+}
+
+@media (min-width: 601px) {
+  .jst-compact-value {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: initial;
+    margin: 0;
+    overflow: visible;
+    white-space: normal;
+    clip: auto;
+    clip-path: none;
+  }
+
+  .jst-speed {
+    min-width: 54px;
+  }
+
+  .jst-font-size {
+    min-width: 42px;
+  }
+}
+
+@media (max-width: 340px) {
+  .jst-controls {
+    gap: 4px;
+    padding-inline: 4px;
+  }
+
+  .jst-reading-controls {
+    gap: 3px;
+  }
+
+  .jst-compact-control {
+    gap: 1px;
+  }
+
+  .jst-control-label {
+    min-width: 9px;
+    font-size: 9px;
+  }
+
+  .jst-root button.jst-small-button {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+  }
+
+  .jst-root button.jst-transport-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .jst-root button.jst-transport-button.is-primary {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  .jst-transport {
+    gap: 3px;
+  }
+
+  .jst-root button.jst-text-button {
+    font-size: 10px;
   }
 
 }

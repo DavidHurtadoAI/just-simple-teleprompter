@@ -26,6 +26,8 @@ The screen controls hide while the text is moving and return when the view is to
 
 Scroll speed, text size, and horizontal/vertical mirroring can all be changed directly from the compact controls in the teleprompter view. Mirror modes remain independent and can be combined for a 180-degree flip. Mirroring affects only the reader; controls remain normally oriented.
 
+All controls share one horizontal bottom bar: transport on the left and speed, text size, and mirror controls on the right. Phone layouts hide only the numeric readouts and keep every button on the same line; tablets and desktops show the values too.
+
 If the source note is edited in another Obsidian pane or window, the teleprompter refreshes automatically after a short debounce. It keeps its scroll position, selected direction, and paused/running state.
 
 ## Mobile support

@@ -147,15 +147,39 @@ export class TeleprompterView extends FileView {
     this.statusEl = headingText.createDiv({ cls: "jst-status", text: "Paused" });
 
     const controls = chrome.createDiv({ cls: "jst-controls" });
+    const transport = controls.createDiv({ cls: "jst-transport" });
+    this.createIconButton(transport, "arrow-up", "Reverse", "jst-transport-button", () => {
+      this.engine?.press(-1);
+    });
+    this.playButton = this.createIconButton(
+      transport,
+      "play",
+      "Resume",
+      "jst-transport-button is-primary",
+      () => this.engine?.toggle()
+    );
+    this.createIconButton(transport, "arrow-down", "Forward", "jst-transport-button", () => {
+      this.engine?.press(1);
+    });
+
     const readingControls = controls.createDiv({ cls: "jst-reading-controls" });
     const speedControls = readingControls.createDiv({
       cls: "jst-compact-control",
       attr: { role: "group", "aria-label": "Scroll speed" }
     });
+    speedControls.createSpan({
+      cls: "jst-control-label",
+      text: "S",
+      attr: { "aria-hidden": "true" }
+    });
     this.createIconButton(speedControls, "minus", "Slower", "jst-small-button", () => {
       void this.changeSpeed(-SPEED_STEP);
     });
-    this.speedEl = speedControls.createDiv({ cls: "jst-speed", text: "36 px/s" });
+    this.speedEl = speedControls.createDiv({
+      cls: "jst-speed jst-compact-value",
+      text: "36 px/s",
+      attr: { "aria-live": "polite" }
+    });
     this.createIconButton(speedControls, "plus", "Faster", "jst-small-button", () => {
       void this.changeSpeed(SPEED_STEP);
     });
@@ -164,10 +188,19 @@ export class TeleprompterView extends FileView {
       cls: "jst-compact-control",
       attr: { role: "group", "aria-label": "Text size" }
     });
+    fontControls.createSpan({
+      cls: "jst-control-label",
+      text: "A",
+      attr: { "aria-hidden": "true" }
+    });
     this.createIconButton(fontControls, "minus", "Smaller text", "jst-small-button", () => {
       void this.changeFontSize(-FONT_SIZE_STEP);
     });
-    this.fontSizeEl = fontControls.createDiv({ cls: "jst-font-size", text: "44 px" });
+    this.fontSizeEl = fontControls.createDiv({
+      cls: "jst-font-size jst-compact-value",
+      text: "44 px",
+      attr: { "aria-live": "polite" }
+    });
     this.createIconButton(fontControls, "plus", "Larger text", "jst-small-button", () => {
       void this.changeFontSize(FONT_SIZE_STEP);
     });
@@ -188,21 +221,6 @@ export class TeleprompterView extends FileView {
       "Mirror text vertically",
       () => void this.toggleMirror("mirrorVertically")
     );
-
-    const transport = controls.createDiv({ cls: "jst-transport" });
-    this.createIconButton(transport, "arrow-up", "Reverse", "jst-transport-button", () => {
-      this.engine?.press(-1);
-    });
-    this.playButton = this.createIconButton(
-      transport,
-      "play",
-      "Resume",
-      "jst-transport-button is-primary",
-      () => this.engine?.toggle()
-    );
-    this.createIconButton(transport, "arrow-down", "Forward", "jst-transport-button", () => {
-      this.engine?.press(1);
-    });
 
     this.rootEl = root;
     this.scrollEl = scroll;

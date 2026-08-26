@@ -10,7 +10,7 @@ import {
 } from "obsidian";
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { resolveTeleprompterAction } from "./input-controller";
-import { ScrollEngine } from "./scroll-engine";
+import { ScrollEngine, clampScrollPosition } from "./scroll-engine";
 import type { MotionState, ScrollDirection } from "./types";
 import { WakeLockController } from "./wake-lock-controller";
 
@@ -18,6 +18,13 @@ export const TELEPROMPTER_VIEW_TYPE = "just-simple-teleprompter-view";
 const CONTROLS_HIDE_DELAY_MS = 1800;
 const SPEED_STEP = 4;
 const FONT_SIZE_STEP = 2;
+const SOURCE_RELOAD_DELAY_MS = 200;
+
+interface PlaybackSnapshot {
+  scrollTop: number;
+  direction: ScrollDirection;
+  running: boolean;
+}
 
 export class TeleprompterView extends FileView {
   private rootEl: HTMLElement | null = null;
@@ -33,6 +40,8 @@ export class TeleprompterView extends FileView {
   private engine: ScrollEngine | null = null;
   private renderComponent: Component | null = null;
   private controlsTimer: number | null = null;
+  private sourceReloadTimer: number | null = null;
+  private preservedPlayback: PlaybackSnapshot | null = null;
   private renderGeneration = 0;
   private isViewOpen = false;
   private readonly wakeLock = new WakeLockController();
@@ -64,6 +73,13 @@ export class TeleprompterView extends FileView {
     this.registerDomEvent(document, "visibilitychange", () => {
       void this.wakeLock.handleVisibilityChange();
     });
+    this.registerEvent(
+      this.app.vault.on("modify", (file) => {
+        if (file instanceof TFile && file.path === this.file?.path) {
+          this.scheduleSourceReload(file);
+        }
+      })
+    );
     this.addAction("refresh-cw", "Reload note", () => void this.reload());
     await this.wakeLock.setEnabled(this.plugin.settings.keepAwake);
 
@@ -79,6 +95,8 @@ export class TeleprompterView extends FileView {
   }
 
   async onUnloadFile(_file: TFile): Promise<void> {
+    this.clearSourceReloadTimer();
+    this.preservedPlayback = null;
     this.stopEngine();
     this.releaseRenderComponent();
     if (this.readerEl) {
@@ -90,6 +108,8 @@ export class TeleprompterView extends FileView {
     this.isViewOpen = false;
     this.renderGeneration += 1;
     this.clearControlsTimer();
+    this.clearSourceReloadTimer();
+    this.preservedPlayback = null;
     this.stopEngine();
     this.releaseRenderComponent();
     await this.wakeLock.destroy();
@@ -199,13 +219,19 @@ export class TeleprompterView extends FileView {
     this.applySettings();
   }
 
-  private async renderFile(file: TFile): Promise<void> {
+  private async renderFile(file: TFile, preservePlayback = false): Promise<void> {
     if (!this.readerEl || !this.scrollEl) {
       return;
     }
 
+    if (preservePlayback) {
+      this.preservedPlayback = this.capturePlayback() ?? this.preservedPlayback;
+    } else {
+      this.preservedPlayback = null;
+    }
+    const snapshot = this.preservedPlayback;
     const generation = ++this.renderGeneration;
-    this.stopEngine();
+    this.stopEngine(false);
     this.releaseRenderComponent();
     this.readerEl.empty();
     this.readerEl.createDiv({ cls: "jst-spacer jst-spacer-top" });
@@ -215,7 +241,7 @@ export class TeleprompterView extends FileView {
 
     try {
       const raw = await this.app.vault.cachedRead(file);
-      if (generation !== this.renderGeneration || file !== this.file) {
+      if (generation !== this.renderGeneration || file.path !== this.file?.path) {
         return;
       }
 
@@ -231,14 +257,20 @@ export class TeleprompterView extends FileView {
         await MarkdownRenderer.render(this.app, markdown, body, file.path, component);
       }
 
-      if (generation !== this.renderGeneration || file !== this.file) {
+      if (generation !== this.renderGeneration || file.path !== this.file?.path) {
         component.unload();
         return;
       }
 
       this.renderComponent = component;
       this.readerEl.createDiv({ cls: "jst-spacer jst-spacer-bottom" });
-      this.scrollEl.scrollTop = 0;
+      this.scrollEl.scrollTop = snapshot
+        ? clampScrollPosition(
+            snapshot.scrollTop,
+            this.scrollEl.scrollHeight,
+            this.scrollEl.clientHeight
+          )
+        : 0;
       this.engine = new ScrollEngine(
         this.scrollEl,
         this.plugin.settings.speed,
@@ -248,7 +280,8 @@ export class TeleprompterView extends FileView {
         }
       );
       this.applySettings();
-      this.handleMotionChange("paused", 1);
+      this.engine.restore(snapshot?.direction ?? 1, snapshot?.running ?? false);
+      this.preservedPlayback = null;
     } catch (error) {
       if (generation !== this.renderGeneration) {
         return;
@@ -262,8 +295,30 @@ export class TeleprompterView extends FileView {
 
   private async reload(): Promise<void> {
     if (this.file) {
-      await this.renderFile(this.file);
+      await this.renderFile(this.file, true);
     }
+  }
+
+  private scheduleSourceReload(file: TFile): void {
+    this.clearSourceReloadTimer();
+    const expectedPath = file.path;
+    this.sourceReloadTimer = window.setTimeout(() => {
+      this.sourceReloadTimer = null;
+      if (this.isViewOpen && this.file?.path === expectedPath) {
+        void this.renderFile(file, true);
+      }
+    }, SOURCE_RELOAD_DELAY_MS);
+  }
+
+  private capturePlayback(): PlaybackSnapshot | null {
+    if (!this.engine || !this.scrollEl) {
+      return null;
+    }
+    return {
+      scrollTop: this.scrollEl.scrollTop,
+      direction: this.engine.currentDirection,
+      running: this.engine.isRunning
+    };
   }
 
   private handleKeydown(event: KeyboardEvent): void {
@@ -359,10 +414,19 @@ export class TeleprompterView extends FileView {
     }
   }
 
-  private stopEngine(): void {
+  private clearSourceReloadTimer(): void {
+    if (this.sourceReloadTimer !== null) {
+      window.clearTimeout(this.sourceReloadTimer);
+      this.sourceReloadTimer = null;
+    }
+  }
+
+  private stopEngine(updateInterface = true): void {
     this.engine?.destroy();
     this.engine = null;
-    this.handleMotionChange("paused", 1);
+    if (updateInterface) {
+      this.handleMotionChange("paused", 1);
+    }
   }
 
   private releaseRenderComponent(): void {

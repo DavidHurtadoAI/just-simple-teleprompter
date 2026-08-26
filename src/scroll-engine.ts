@@ -35,6 +35,15 @@ export function clampSpeed(speed: number): number {
   return Math.min(160, Math.max(4, speed));
 }
 
+export function clampScrollPosition(
+  position: number,
+  scrollHeight: number,
+  clientHeight: number
+): number {
+  const maximum = Math.max(0, scrollHeight - clientHeight);
+  return Math.min(maximum, Math.max(0, position));
+}
+
 export function calculateScrollStep(
   position: number,
   maximum: number,
@@ -86,6 +95,23 @@ export class ScrollEngine {
 
   setSpeed(speed: number): void {
     this.speed = clampSpeed(speed);
+  }
+
+  restore(direction: ScrollDirection, running: boolean): void {
+    if (this.destroyed) {
+      return;
+    }
+
+    if (running) {
+      this.start(direction);
+      return;
+    }
+
+    this.running = false;
+    this.direction = direction;
+    this.previousTimestamp = null;
+    this.cancelFrame();
+    this.emitMotionChange();
   }
 
   press(direction: ScrollDirection): void {

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   ScrollEngine,
   calculateScrollStep,
+  clampScrollPosition,
   clampSpeed
 } from "../src/scroll-engine";
 import type { FrameScheduler, ScrollViewport } from "../src/scroll-engine";
@@ -57,6 +58,12 @@ describe("calculateScrollStep", () => {
     expect(clampSpeed(-10)).toBe(4);
     expect(clampSpeed(999)).toBe(160);
     expect(clampSpeed(Number.NaN)).toBe(36);
+  });
+
+  it("clamps a restored position to the updated document bounds", () => {
+    expect(clampScrollPosition(320, 1000, 200)).toBe(320);
+    expect(clampScrollPosition(900, 700, 200)).toBe(500);
+    expect(clampScrollPosition(-20, 1000, 200)).toBe(0);
   });
 });
 
@@ -145,6 +152,31 @@ describe("ScrollEngine", () => {
     engine.toggle();
 
     expect(engine.motionState).toBe("reverse");
+  });
+
+  it("can restore a paused reverse direction after the source is re-rendered", () => {
+    const target = viewport(100);
+    const scheduler = new FakeScheduler();
+    const engine = new ScrollEngine(target, 40, {}, scheduler);
+
+    engine.restore(-1, false);
+
+    expect(engine.motionState).toBe("paused");
+    expect(engine.currentDirection).toBe(-1);
+
+    engine.toggle();
+    expect(engine.motionState).toBe("reverse");
+  });
+
+  it("can restore active playback after the source is re-rendered", () => {
+    const target = viewport(100);
+    const scheduler = new FakeScheduler();
+    const engine = new ScrollEngine(target, 40, {}, scheduler);
+
+    engine.restore(-1, true);
+
+    expect(engine.motionState).toBe("reverse");
+    expect(scheduler.callbacks.size).toBe(1);
   });
 
   it("does not start beyond the requested boundary", () => {

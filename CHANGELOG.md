@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.5
+
+- Refresh an open teleprompter automatically when its source note changes.
+- Preserve scroll position, direction, and playback state across source refreshes.
+
 ## 0.1.4
 
 - Add compact text-size and horizontal/vertical mirror controls to the teleprompter view.

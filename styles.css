@@ -1,5 +1,5 @@
-.jst-view-content {
-  padding: 0 !important;
+.view-content.jst-view-content {
+  padding: 0;
   overflow: hidden;
 }
 
@@ -231,7 +231,6 @@
   white-space: nowrap;
   border: 0;
   clip: rect(0 0 0 0);
-  clip-path: inset(50%);
 }
 
 .jst-transport {
@@ -397,7 +396,6 @@
     overflow: visible;
     white-space: normal;
     clip: auto;
-    clip-path: none;
   }
 
   .jst-speed {

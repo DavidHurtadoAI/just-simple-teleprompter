@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7
+
+- Remove partially supported `clip-path` declarations from compact value labels.
+- Replace `!important` with a more specific view selector, clearing Obsidian's CSS lint warnings.
+
 ## 0.1.6
 
 - Place transport and reading controls on one horizontal bar.

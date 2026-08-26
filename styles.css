@@ -171,34 +171,48 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: min(100%, 440px);
-  padding: 20px 14px max(12px, env(safe-area-inset-bottom));
+  width: min(100%, 400px);
+  padding: 14px 12px max(10px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0));
   pointer-events: auto;
 }
 
-.jst-speed-controls,
+.jst-reading-controls,
+.jst-compact-control,
 .jst-transport {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.jst-speed-controls {
-  gap: 8px;
-  margin-bottom: 8px;
+.jst-reading-controls {
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-bottom: 7px;
 }
 
-.jst-speed {
-  min-width: 64px;
+.jst-compact-control {
+  gap: 4px;
+}
+
+.jst-speed,
+.jst-font-size {
   color: #d2d2d2;
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
 }
 
+.jst-speed {
+  min-width: 54px;
+}
+
+.jst-font-size {
+  min-width: 42px;
+}
+
 .jst-transport {
-  gap: clamp(8px, 3vw, 16px);
+  gap: clamp(7px, 2.5vw, 12px);
 }
 
 .jst-root button.jst-small-button,
@@ -217,23 +231,23 @@
 }
 
 .jst-root button.jst-small-button {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   padding: 0;
 }
 
 .jst-root button.jst-transport-button {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   padding: 0;
 }
 
 .jst-root button.jst-transport-button.is-primary {
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
   color: #101010;
   background: #f4f4f4;
   border-color: transparent;
@@ -244,18 +258,34 @@
 }
 
 .jst-root button:is(.jst-small-button, .jst-transport-button):focus-visible {
-  outline: 3px solid #ff7a5c;
-  outline-offset: 3px;
+  outline: 2px solid #ff7a5c;
+  outline-offset: 2px;
+}
+
+.jst-root button.jst-small-button.is-active {
+  color: #101010;
+  background: #f4f4f4;
+  border-color: transparent;
+}
+
+.jst-small-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.jst-root button.jst-text-button {
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .jst-transport-button svg {
-  width: 21px;
-  height: 21px;
+  width: 19px;
+  height: 19px;
 }
 
 .jst-transport-button.is-primary svg {
-  width: 24px;
-  height: 24px;
+  width: 21px;
+  height: 21px;
 }
 
 .jst-key-capture-modal {

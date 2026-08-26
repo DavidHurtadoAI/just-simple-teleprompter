@@ -41,4 +41,9 @@ describe("mergeSettings", () => {
       mirrorVertically: true
     });
   });
+
+  it("clamps text size changes made from the main controls", () => {
+    expect(mergeSettings({ fontSize: 22 }).fontSize).toBe(24);
+    expect(mergeSettings({ fontSize: 98 }).fontSize).toBe(96);
+  });
 });

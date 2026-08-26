@@ -24,7 +24,7 @@ Custom pedal keys can be learned from the plugin settings. Pedals must present t
 
 The screen controls hide while the text is moving and return when the view is touched or paused.
 
-Horizontal and vertical text mirroring can be enabled independently. Enable both when the physical setup requires a 180-degree flip. Mirroring affects only the reader; controls remain normally oriented.
+Scroll speed, text size, and horizontal/vertical mirroring can all be changed directly from the compact controls in the teleprompter view. Mirror modes remain independent and can be combined for a 180-degree flip. Mirroring affects only the reader; controls remain normally oriented.
 
 ## Mobile support
 

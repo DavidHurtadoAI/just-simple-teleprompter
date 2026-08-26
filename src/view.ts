@@ -17,6 +17,7 @@ import { WakeLockController } from "./wake-lock-controller";
 export const TELEPROMPTER_VIEW_TYPE = "just-simple-teleprompter-view";
 const CONTROLS_HIDE_DELAY_MS = 1800;
 const SPEED_STEP = 4;
+const FONT_SIZE_STEP = 2;
 
 export class TeleprompterView extends FileView {
   private rootEl: HTMLElement | null = null;
@@ -26,6 +27,9 @@ export class TeleprompterView extends FileView {
   private statusEl: HTMLElement | null = null;
   private playButton: HTMLButtonElement | null = null;
   private speedEl: HTMLElement | null = null;
+  private fontSizeEl: HTMLElement | null = null;
+  private mirrorHorizontalButton: HTMLButtonElement | null = null;
+  private mirrorVerticalButton: HTMLButtonElement | null = null;
   private engine: ScrollEngine | null = null;
   private renderComponent: Component | null = null;
   private controlsTimer: number | null = null;
@@ -100,6 +104,7 @@ export class TeleprompterView extends FileView {
     this.scrollEl?.toggleClass("is-mirrored-vertically", settings.mirrorVertically);
     this.engine?.setSpeed(settings.speed);
     this.updateSpeedLabel();
+    this.updateReadingControlLabels();
     void this.wakeLock.setEnabled(settings.keepAwake);
   }
 
@@ -122,7 +127,11 @@ export class TeleprompterView extends FileView {
     this.statusEl = headingText.createDiv({ cls: "jst-status", text: "Paused" });
 
     const controls = chrome.createDiv({ cls: "jst-controls" });
-    const speedControls = controls.createDiv({ cls: "jst-speed-controls" });
+    const readingControls = controls.createDiv({ cls: "jst-reading-controls" });
+    const speedControls = readingControls.createDiv({
+      cls: "jst-compact-control",
+      attr: { role: "group", "aria-label": "Scroll speed" }
+    });
     this.createIconButton(speedControls, "minus", "Slower", "jst-small-button", () => {
       void this.changeSpeed(-SPEED_STEP);
     });
@@ -130,6 +139,35 @@ export class TeleprompterView extends FileView {
     this.createIconButton(speedControls, "plus", "Faster", "jst-small-button", () => {
       void this.changeSpeed(SPEED_STEP);
     });
+
+    const fontControls = readingControls.createDiv({
+      cls: "jst-compact-control",
+      attr: { role: "group", "aria-label": "Text size" }
+    });
+    this.createIconButton(fontControls, "minus", "Smaller text", "jst-small-button", () => {
+      void this.changeFontSize(-FONT_SIZE_STEP);
+    });
+    this.fontSizeEl = fontControls.createDiv({ cls: "jst-font-size", text: "44 px" });
+    this.createIconButton(fontControls, "plus", "Larger text", "jst-small-button", () => {
+      void this.changeFontSize(FONT_SIZE_STEP);
+    });
+
+    const mirrorControls = readingControls.createDiv({
+      cls: "jst-compact-control jst-mirror-controls",
+      attr: { role: "group", "aria-label": "Text mirroring" }
+    });
+    this.mirrorHorizontalButton = this.createTextButton(
+      mirrorControls,
+      "H",
+      "Mirror text horizontally",
+      () => void this.toggleMirror("mirrorHorizontally")
+    );
+    this.mirrorVerticalButton = this.createTextButton(
+      mirrorControls,
+      "V",
+      "Mirror text vertically",
+      () => void this.toggleMirror("mirrorVertically")
+    );
 
     const transport = controls.createDiv({ cls: "jst-transport" });
     this.createIconButton(transport, "arrow-up", "Reverse", "jst-transport-button", () => {
@@ -338,8 +376,34 @@ export class TeleprompterView extends FileView {
     this.revealControls();
   }
 
+  private async changeFontSize(delta: number): Promise<void> {
+    await this.plugin.updateSettings({ fontSize: this.plugin.settings.fontSize + delta });
+    this.revealControls();
+  }
+
+  private async toggleMirror(
+    key: "mirrorHorizontally" | "mirrorVertically"
+  ): Promise<void> {
+    await this.plugin.updateSettings({ [key]: !this.plugin.settings[key] });
+    this.revealControls();
+  }
+
   private updateSpeedLabel(): void {
     this.speedEl?.setText(`${Math.round(this.plugin.settings.speed)} px/s`);
+  }
+
+  private updateReadingControlLabels(): void {
+    this.fontSizeEl?.setText(`${Math.round(this.plugin.settings.fontSize)} px`);
+    this.updateToggleButton(
+      this.mirrorHorizontalButton,
+      this.plugin.settings.mirrorHorizontally
+    );
+    this.updateToggleButton(this.mirrorVerticalButton, this.plugin.settings.mirrorVertically);
+  }
+
+  private updateToggleButton(button: HTMLButtonElement | null, active: boolean): void {
+    button?.toggleClass("is-active", active);
+    button?.setAttribute("aria-pressed", active ? "true" : "false");
   }
 
   private createIconButton(
@@ -358,6 +422,29 @@ export class TeleprompterView extends FileView {
       }
     });
     setIcon(button, icon);
+    this.registerDomEvent(button, "click", (event) => {
+      event.preventDefault();
+      onClick();
+    });
+    return button;
+  }
+
+  private createTextButton(
+    parent: HTMLElement,
+    text: string,
+    label: string,
+    onClick: () => void
+  ): HTMLButtonElement {
+    const button = parent.createEl("button", {
+      cls: "jst-small-button jst-text-button",
+      text,
+      attr: {
+        type: "button",
+        "aria-label": label,
+        "aria-pressed": "false",
+        "data-tooltip-position": "top"
+      }
+    });
     this.registerDomEvent(button, "click", (event) => {
       event.preventDefault();
       onClick();

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4
+
+- Add compact text-size and horizontal/vertical mirror controls to the teleprompter view.
+- Reduce the size and spacing of every on-screen control.
+
 ## 0.1.3
 
 - Add independent horizontal and vertical text mirroring that can be combined.

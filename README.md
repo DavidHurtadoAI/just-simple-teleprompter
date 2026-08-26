@@ -4,6 +4,8 @@ A deliberately small, local-first teleprompter for Obsidian on desktop, phone, a
 
 Open any Markdown note, choose a direction, and read. The plugin never modifies the note and makes no network requests.
 
+![Just Simple Teleprompter running in Obsidian](assets/just-simple-teleprompter-demo.gif)
+
 ## Controls
 
 - **Forward** or the right pedal starts continuous forward scrolling.
@@ -40,6 +42,10 @@ The runtime uses only Obsidian and browser APIs. It does not depend on Node.js o
 - Accounts, telemetry, ads, and payments: none.
 - Vault access: reads only the Markdown note opened in the teleprompter.
 - File modifications: none.
+
+## Development note
+
+> Just Simple Teleprompter was unapologetically vibe-coded: built iteratively with AI assistance, then tested and refined inside a real Obsidian vault.
 
 ## Development
 

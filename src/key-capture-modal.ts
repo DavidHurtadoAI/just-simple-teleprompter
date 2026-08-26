@@ -20,7 +20,7 @@ export class KeyCaptureModal extends Modal {
     const icon = this.contentEl.createDiv({ cls: "jst-key-capture-icon" });
     setIcon(icon, "keyboard");
     const prompt = this.contentEl.createEl("p", {
-      text: "Press the pedal once. Press Escape to cancel."
+      text: "Press the pedal once. Press escape to cancel."
     });
 
     this.keydownHandler = (event) => {

@@ -32,10 +32,6 @@ export default class JustSimpleTeleprompterPlugin extends Plugin {
     );
   }
 
-  onunload(): void {
-    this.app.workspace.detachLeavesOfType(TELEPROMPTER_VIEW_TYPE);
-  }
-
   async openFile(file: TFile): Promise<TeleprompterView> {
     if (!isMarkdownFile(file)) {
       throw new Error("Just Simple Teleprompter supports Markdown notes only.");

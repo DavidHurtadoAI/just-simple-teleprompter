@@ -1,101 +1,140 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import type { SettingDefinition, SettingDefinitionItem } from "obsidian";
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { describeBinding } from "./input-controller";
 import { capturedBindingNotice, KeyCaptureModal } from "./key-capture-modal";
+import { DEFAULT_SETTINGS } from "./types";
+import type { TeleprompterSettings } from "./types";
+
+type SettingKey = keyof TeleprompterSettings;
+type PedalBindingKey = "leftPedalBinding" | "rightPedalBinding";
 
 export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
   constructor(app: App, private readonly teleprompter: JustSimpleTeleprompterPlugin) {
     super(app, teleprompter);
   }
 
-  display(): void {
-    const { containerEl } = this;
-    containerEl.empty();
-    containerEl.addClass("jst-settings");
-
-    new Setting(containerEl).setName("Reading").setHeading();
-
-    new Setting(containerEl)
-      .setName("Scroll speed")
-      .setDesc(`${Math.round(this.teleprompter.settings.speed)} pixels per second`)
-      .addSlider((slider) => {
-        slider
-          .setLimits(4, 160, 2)
-          .setValue(this.teleprompter.settings.speed)
-          .setDynamicTooltip()
-          .onChange(async (value) => {
-            await this.teleprompter.updateSettings({ speed: value });
-          });
-      });
-
-    new Setting(containerEl)
-      .setName("Text size")
-      .setDesc(`${Math.round(this.teleprompter.settings.fontSize)} pixels`)
-      .addSlider((slider) => {
-        slider
-          .setLimits(24, 96, 2)
-          .setValue(this.teleprompter.settings.fontSize)
-          .setDynamicTooltip()
-          .onChange(async (value) => {
-            await this.teleprompter.updateSettings({ fontSize: value });
-          });
-      });
-
-    new Setting(containerEl)
-      .setName("Line spacing")
-      .setDesc(this.teleprompter.settings.lineHeight.toFixed(2))
-      .addSlider((slider) => {
-        slider
-          .setLimits(1, 2, 0.05)
-          .setValue(this.teleprompter.settings.lineHeight)
-          .setDynamicTooltip()
-          .onChange(async (value) => {
-            await this.teleprompter.updateSettings({ lineHeight: value });
-          });
-      });
-
-    new Setting(containerEl)
-      .setName("Mirror text horizontally")
-      .setDesc("For teleprompters that use reflective glass.")
-      .addToggle((toggle) => {
-        toggle
-          .setValue(this.teleprompter.settings.mirrorHorizontally)
-          .onChange((value) => this.teleprompter.updateSettings({ mirrorHorizontally: value }));
-      });
-
-    new Setting(containerEl)
-      .setName("Keep screen awake")
-      .setDesc("Uses the device wake lock when the platform supports it.")
-      .addToggle((toggle) => {
-        toggle
-          .setValue(this.teleprompter.settings.keepAwake)
-          .onChange((value) => this.teleprompter.updateSettings({ keepAwake: value }));
-      });
-
-    new Setting(containerEl).setName("Bluetooth pedals").setHeading();
-    containerEl.createEl("p", {
-      cls: "setting-item-description jst-settings-intro",
-      text: "When paused, right starts forward and left starts reverse. While moving, either pedal pauses. Automatic mode accepts arrow keys and Page Up/Page Down."
-    });
-
-    this.addPedalSetting("Left pedal", "reverse", "leftPedalBinding");
-    this.addPedalSetting("Right pedal", "forward", "rightPedalBinding");
-
-    new Setting(containerEl)
-      .setName("Pause or resume")
-      .setDesc("Space bar, or the center button on screen. Escape always pauses.");
+  getSettingDefinitions(): SettingDefinitionItem<SettingKey>[] {
+    return [
+      {
+        name: "Scroll speed",
+        desc: "Automatic scrolling speed.",
+        control: {
+          type: "slider",
+          key: "speed",
+          defaultValue: DEFAULT_SETTINGS.speed,
+          min: 4,
+          max: 160,
+          step: 2,
+          displayFormat: (value) => `${Math.round(value)} px/s`
+        }
+      },
+      {
+        name: "Text size",
+        desc: "Teleprompter text size.",
+        control: {
+          type: "slider",
+          key: "fontSize",
+          defaultValue: DEFAULT_SETTINGS.fontSize,
+          min: 24,
+          max: 96,
+          step: 2,
+          displayFormat: (value) => `${Math.round(value)} px`
+        }
+      },
+      {
+        name: "Line spacing",
+        desc: "Space between lines of teleprompter text.",
+        control: {
+          type: "slider",
+          key: "lineHeight",
+          defaultValue: DEFAULT_SETTINGS.lineHeight,
+          min: 1,
+          max: 2,
+          step: 0.05,
+          displayFormat: (value) => value.toFixed(2)
+        }
+      },
+      {
+        name: "Mirror text horizontally",
+        desc: "For teleprompters that use reflective glass.",
+        control: {
+          type: "toggle",
+          key: "mirrorHorizontally",
+          defaultValue: DEFAULT_SETTINGS.mirrorHorizontally
+        }
+      },
+      {
+        name: "Keep screen awake",
+        desc: "Uses the device wake lock when the platform supports it.",
+        control: {
+          type: "toggle",
+          key: "keepAwake",
+          defaultValue: DEFAULT_SETTINGS.keepAwake
+        }
+      },
+      {
+        type: "group",
+        heading: "Bluetooth pedals",
+        items: [
+          {
+            name: "Pedal behavior",
+            desc: "When paused, right starts forward and left starts reverse. While moving, either pedal pauses. Automatic mode accepts arrow keys and page up/page down."
+          },
+          this.createPedalDefinition("Left pedal", "reverse", "leftPedalBinding"),
+          this.createPedalDefinition("Right pedal", "forward", "rightPedalBinding"),
+          {
+            name: "Pause or resume",
+            desc: "Space bar, or the center button on screen. Escape always pauses."
+          }
+        ]
+      }
+    ];
   }
 
-  private addPedalSetting(
+  getControlValue(key: string): unknown {
+    if (isSettingKey(key)) {
+      return this.teleprompter.settings[key];
+    }
+    return undefined;
+  }
+
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    switch (key) {
+      case "speed":
+      case "fontSize":
+      case "lineHeight":
+        if (typeof value === "number") {
+          await this.teleprompter.updateSettings({ [key]: value });
+          return;
+        }
+        break;
+      case "mirrorHorizontally":
+      case "keepAwake":
+        if (typeof value === "boolean") {
+          await this.teleprompter.updateSettings({ [key]: value });
+          return;
+        }
+        break;
+    }
+    throw new Error(`Invalid setting value for ${key}`);
+  }
+
+  private createPedalDefinition(
     name: string,
     action: "reverse" | "forward",
-    key: "leftPedalBinding" | "rightPedalBinding"
-  ): void {
+    key: PedalBindingKey
+  ): SettingDefinition<SettingKey> {
     const binding = this.teleprompter.settings[key];
-    const setting = new Setting(this.containerEl)
-      .setName(name)
-      .setDesc(`${action === "reverse" ? "Reverse" : "Forward"} · ${describeBinding(binding)}`);
+    return {
+      name,
+      desc: `${action === "reverse" ? "Reverse" : "Forward"} - ${describeBinding(binding)}`,
+      render: (setting) => this.addPedalControls(setting, name, key)
+    };
+  }
 
+  private addPedalControls(setting: Setting, name: string, key: PedalBindingKey): void {
+    const binding = this.teleprompter.settings[key];
     setting.addButton((button) => {
       button.setButtonText("Learn").onClick(() => {
         new KeyCaptureModal(this.app, name.toLowerCase(), (captured) => {
@@ -106,7 +145,7 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
           };
           void this.teleprompter.updateSettings(patch).then(() => {
             new Notice(capturedBindingNotice(captured));
-            this.display();
+            this.update();
           });
         }).open();
       });
@@ -118,9 +157,21 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
           .setIcon("reset")
           .setTooltip("Use automatic keys")
           .onClick(() => {
-            void this.teleprompter.updateSettings({ [key]: null }).then(() => this.display());
+            void this.teleprompter.updateSettings({ [key]: null }).then(() => this.update());
           });
       });
     }
   }
+}
+
+function isSettingKey(key: string): key is SettingKey {
+  return [
+    "speed",
+    "fontSize",
+    "lineHeight",
+    "mirrorHorizontally",
+    "keepAwake",
+    "leftPedalBinding",
+    "rightPedalBinding"
+  ].includes(key);
 }

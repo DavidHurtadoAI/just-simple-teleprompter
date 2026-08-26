@@ -1,6 +1,6 @@
 {
   "name": "just-simple-teleprompter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "A deliberately simple, mobile-first teleprompter for Obsidian.",
   "author": "David Hurtado",
@@ -17,14 +17,17 @@
     "dev": "node esbuild.config.mjs --watch",
     "build": "tsc --noEmit && node esbuild.config.mjs production",
     "test": "vitest run",
+    "lint": "eslint . --max-warnings 0",
     "package": "node scripts/package-release.mjs",
     "audit:release": "node scripts/validate-release.mjs",
-    "check": "npm test && npm run build && npm run package && npm run audit:release",
+    "check": "npm run lint && npm test && npm run build && npm run package && npm run audit:release",
     "install:test": "node scripts/install-test.mjs ../../@Nexus-dev"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
     "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-obsidianmd": "^0.4.2",
     "obsidian": "^1.13.1",
     "typescript": "^5.9.3",
     "vitest": "^3.2.7"

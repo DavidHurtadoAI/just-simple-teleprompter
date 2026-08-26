@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           VERSION="$(node -p "require('./manifest.json').version")"
-          test "${GITHUB_REF_NAME#v}" = "$VERSION"
+          test "$GITHUB_REF_NAME" = "$VERSION"
       - uses: softprops/action-gh-release@v2
         with:
           files: |

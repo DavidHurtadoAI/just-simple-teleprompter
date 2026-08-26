@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Validate the plugin with Obsidian's official ESLint rules in CI.
+- Migrate settings to Obsidian 1.13's searchable declarative settings API.
+- Preserve open teleprompter views across plugin reloads and updates.
+- Enforce exact release tags and cross-check all required release metadata and assets.
+
 ## 0.1.1
 
 - Change pedal behavior: either pedal pauses while the teleprompter is moving.

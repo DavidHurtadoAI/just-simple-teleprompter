@@ -1,5 +1,6 @@
 import { copyFile, mkdir, rm } from "node:fs/promises";
 import path from "node:path";
+import process from "node:process";
 
 const root = process.cwd();
 const dist = path.join(root, "dist");
@@ -12,4 +13,3 @@ for (const file of ["main.js", "manifest.json", "styles.css"]) {
 }
 
 console.log("Packaged release assets in dist/");
-

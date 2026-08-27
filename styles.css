@@ -183,6 +183,16 @@
   pointer-events: auto;
 }
 
+.jst-root.is-mobile-app .jst-header {
+  padding-bottom: 118px;
+}
+
+.jst-root.is-mobile-app .jst-controls {
+  top: calc(env(safe-area-inset-top) + 64px);
+  bottom: auto;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0));
+}
+
 .jst-reading-controls,
 .jst-compact-control,
 .jst-transport {

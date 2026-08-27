@@ -6,6 +6,17 @@ Open any Markdown note, choose a direction, and read. The plugin never modifies 
 
 ![Just Simple Teleprompter running in Obsidian](assets/just-simple-teleprompter-demo.gif)
 
+## Features
+
+- Automatic forward and reverse scrolling with pause/resume.
+- Compact controls for speed, text size, and playback, plus configurable line spacing.
+- Independent horizontal and vertical mirroring, including both at once.
+- Touch, keyboard, and configurable Bluetooth pedal input.
+- Phone, tablet, and desktop support with one responsive control bar.
+- Automatic source-note refresh without losing position or playback state.
+- A reading cue line and optional screen wake lock.
+- Fully local, read-only operation with no accounts, telemetry, or network requests.
+
 ## Controls
 
 - **Forward** or the right pedal starts continuous forward scrolling.
@@ -28,7 +39,7 @@ The screen controls hide while the text is moving and return when the view is to
 
 Scroll speed, text size, and horizontal/vertical mirroring can all be changed directly from the compact controls in the teleprompter view. Mirror modes remain independent and can be combined for a 180-degree flip. Mirroring affects only the reader; controls remain normally oriented.
 
-All controls share one horizontal bottom bar: transport on the left and speed, text size, and mirror controls on the right. Phone layouts hide only the numeric readouts and keep every button on the same line; tablets and desktops show the values too.
+All controls share one horizontal bar: transport on the left and speed, text size, and mirror controls on the right. The bar stays at the top in the mobile app so Obsidian's navigation cannot cover it, and at the bottom on desktop. Narrow phone layouts hide only the numeric readouts and keep every button on the same line; wider layouts show the values too.
 
 If the source note is edited in another Obsidian pane or window, the teleprompter refreshes automatically after a short debounce. It keeps its scroll position, selected direction, and paused/running state.
 

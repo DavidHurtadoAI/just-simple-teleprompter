@@ -3,6 +3,7 @@ import {
   FileView,
   MarkdownRenderer,
   Notice,
+  Platform,
   TFile,
   WorkspaceLeaf,
   getFrontMatterInfo,
@@ -133,6 +134,7 @@ export class TeleprompterView extends FileView {
     this.contentEl.addClass("jst-view-content");
 
     const root = this.contentEl.createDiv({ cls: "jst-root is-paused" });
+    root.toggleClass("is-mobile-app", Platform.isMobileApp);
     const scroll = root.createDiv({ cls: "jst-scroll", attr: { tabindex: "0" } });
     scroll.setAttribute("aria-label", "Teleprompter text");
 

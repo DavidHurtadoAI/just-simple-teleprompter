@@ -37,6 +37,20 @@ function viewport(position = 0, height = 1000, clientHeight = 200): ScrollViewpo
   return { scrollTop: position, scrollHeight: height, clientHeight };
 }
 
+class IntegerScrollViewport implements ScrollViewport {
+  readonly scrollHeight = 1000;
+  readonly clientHeight = 200;
+  private position = 0;
+
+  get scrollTop(): number {
+    return this.position;
+  }
+
+  set scrollTop(position: number) {
+    this.position = Math.trunc(position);
+  }
+}
+
 describe("calculateScrollStep", () => {
   it("moves in both directions", () => {
     expect(calculateScrollStep(100, 800, 40, 1, 100).position).toBe(104);
@@ -78,6 +92,21 @@ describe("ScrollEngine", () => {
     scheduler.runNext(0);
     scheduler.runNext(100);
     expect(target.scrollTop).toBe(104);
+  });
+
+  it("accumulates subpixel movement when a mobile viewport rounds scrollTop", () => {
+    const target = new IntegerScrollViewport();
+    const scheduler = new FakeScheduler();
+    const engine = new ScrollEngine(target, 36, {}, scheduler);
+
+    engine.start(1);
+    scheduler.runNext(0);
+    for (let timestamp = 8; timestamp <= 80; timestamp += 8) {
+      scheduler.runNext(timestamp);
+    }
+
+    expect(target.scrollTop).toBeGreaterThan(0);
+    expect(engine.motionState).toBe("forward");
   });
 
   it.each([

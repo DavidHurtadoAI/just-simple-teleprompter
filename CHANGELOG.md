@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8
+
+- Keep subpixel scroll progress internally so automatic scrolling works in mobile WebViews that round `scrollTop`.
+- Move the control bar to the top in the Obsidian mobile app so the app navigation cannot cover it.
+- Add a complete, scannable feature summary to the README.
+
 ## 0.1.7
 
 - Remove partially supported `clip-path` declarations from compact value labels.

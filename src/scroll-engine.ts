@@ -63,6 +63,7 @@ export function calculateScrollStep(
 
 export class ScrollEngine {
   private speed: number;
+  private position: number;
   private direction: ScrollDirection = 1;
   private running = false;
   private frameHandle: number | null = null;
@@ -76,6 +77,7 @@ export class ScrollEngine {
     private readonly scheduler: FrameScheduler = browserScheduler
   ) {
     this.speed = clampSpeed(speed);
+    this.position = viewport.scrollTop;
   }
 
   get motionState(): MotionState {
@@ -138,6 +140,7 @@ export class ScrollEngine {
 
     const wasRunning = this.running;
     this.direction = direction;
+    this.position = this.viewport.scrollTop;
 
     if (this.isAtBoundary(direction)) {
       this.running = false;
@@ -199,7 +202,7 @@ export class ScrollEngine {
 
     const maximum = Math.max(0, this.viewport.scrollHeight - this.viewport.clientHeight);
     const step = calculateScrollStep(
-      this.viewport.scrollTop,
+      this.position,
       maximum,
       this.speed,
       this.direction,
@@ -207,6 +210,7 @@ export class ScrollEngine {
     );
 
     this.previousTimestamp = timestamp;
+    this.position = step.position;
     this.viewport.scrollTop = step.position;
 
     if (step.reachedBoundary) {

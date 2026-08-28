@@ -12,7 +12,7 @@ import {
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { resolveTeleprompterAction } from "./input-controller";
 import { ScrollEngine, clampScrollPosition } from "./scroll-engine";
-import type { MotionState, ScrollDirection } from "./types";
+import type { MotionState, ScrollDirection, TeleprompterAction } from "./types";
 import { WakeLockController } from "./wake-lock-controller";
 
 export const TELEPROMPTER_VIEW_TYPE = "just-simple-teleprompter-view";
@@ -127,6 +127,32 @@ export class TeleprompterView extends FileView {
     this.updateSpeedLabel();
     this.updateReadingControlLabels();
     void this.wakeLock.setEnabled(settings.keepAwake);
+  }
+
+  canControlPlayback(): boolean {
+    return this.engine !== null;
+  }
+
+  performAction(action: TeleprompterAction): boolean {
+    if (this.engine === null) {
+      return false;
+    }
+
+    switch (action) {
+      case "forward":
+        this.engine.press(1);
+        break;
+      case "reverse":
+        this.engine.press(-1);
+        break;
+      case "toggle":
+        this.engine.toggle();
+        break;
+      case "pause":
+        this.engine.pause();
+        break;
+    }
+    return true;
   }
 
   private buildInterface(): void {
@@ -357,20 +383,7 @@ export class TeleprompterView extends FileView {
     event.preventDefault();
     event.stopPropagation();
 
-    switch (action) {
-      case "forward":
-        this.engine.press(1);
-        break;
-      case "reverse":
-        this.engine.press(-1);
-        break;
-      case "toggle":
-        this.engine.toggle();
-        break;
-      case "pause":
-        this.engine.pause();
-        break;
-    }
+    this.performAction(action);
   }
 
   private handleMotionChange(state: MotionState, direction: ScrollDirection): void {

@@ -147,14 +147,14 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
     const binding = this.teleprompter.settings[key];
     setting.addButton((button) => {
       button.setButtonText("Learn").onClick(() => {
-        new KeyCaptureModal(this.app, name.toLowerCase(), (captured) => {
+        new KeyCaptureModal(this.app, name.toLowerCase(), (captured, input) => {
           const otherKey = key === "leftPedalBinding" ? "rightPedalBinding" : "leftPedalBinding";
           const patch = {
             [key]: captured,
             ...(this.teleprompter.settings[otherKey] === captured ? { [otherKey]: null } : {})
           };
           void this.teleprompter.updateSettings(patch).then(() => {
-            new Notice(capturedBindingNotice(captured));
+            new Notice(capturedBindingNotice(captured, input));
             this.update();
           });
         }).open();

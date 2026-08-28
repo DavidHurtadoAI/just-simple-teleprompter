@@ -55,5 +55,10 @@ function validBoolean(value: unknown, fallback: boolean): boolean {
 }
 
 function validBinding(value: unknown): string | null {
-  return typeof value === "string" && /^(code|key):.+$/.test(value) ? value : null;
+  return typeof value === "string" &&
+    /^(code|key):.+$/.test(value) &&
+    value !== "code:Unidentified" &&
+    value !== "key:Unidentified"
+    ? value
+    : null;
 }

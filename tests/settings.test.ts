@@ -14,7 +14,7 @@ describe("mergeSettings", () => {
       mirrorHorizontally: "yes",
       mirrorVertically: "yes",
       keepAwake: false,
-      leftPedalBinding: "not-a-binding",
+      leftPedalBinding: "code:Unidentified",
       rightPedalBinding: "code:PageDown"
     } as unknown as Parameters<typeof mergeSettings>[0];
 

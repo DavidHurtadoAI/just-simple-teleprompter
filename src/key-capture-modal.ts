@@ -1,5 +1,10 @@
 import { App, Modal, setIcon } from "obsidian";
-import { bindingFromKeyboardInput, describeBinding } from "./input-controller";
+import {
+  bindingFromKeyboardInput,
+  describeBinding,
+  describeKeyboardInput
+} from "./input-controller";
+import type { KeyboardInput } from "./input-controller";
 
 export class KeyCaptureModal extends Modal {
   private keydownHandler: ((event: KeyboardEvent) => void) | null = null;
@@ -7,7 +12,7 @@ export class KeyCaptureModal extends Modal {
   constructor(
     app: App,
     private readonly pedalName: string,
-    private readonly onCapture: (binding: string) => void
+    private readonly onCapture: (binding: string, input: KeyboardInput) => void
   ) {
     super(app);
   }
@@ -22,17 +27,23 @@ export class KeyCaptureModal extends Modal {
     const prompt = this.contentEl.createEl("p", {
       text: "Press the pedal once. Press escape to cancel."
     });
+    const diagnostic = this.contentEl.createEl("p", {
+      cls: "jst-key-capture-diagnostic",
+      text: "Waiting for a keyboard event…"
+    });
 
     this.keydownHandler = (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
+      diagnostic.setText(describeKeyboardInput(event));
 
       if (event.key === "Escape") {
         this.close();
         return;
       }
 
-      if (event.repeat || isModifierOnly(event.key)) {
+      if (isModifierOnly(event.key)) {
+        prompt.setText("Modifier keys cannot be assigned on their own.");
         return;
       }
 
@@ -42,7 +53,12 @@ export class KeyCaptureModal extends Modal {
       }
 
       const binding = bindingFromKeyboardInput(event);
-      this.onCapture(binding);
+      if (binding === null) {
+        prompt.setText("iOS reported an unidentified key. Try another pedal mode.");
+        return;
+      }
+
+      this.onCapture(binding, event);
       this.close();
     };
 
@@ -62,6 +78,6 @@ function isModifierOnly(key: string): boolean {
   return ["Alt", "AltGraph", "Control", "Meta", "Shift"].includes(key);
 }
 
-export function capturedBindingNotice(binding: string): string {
-  return `Learned: ${describeBinding(binding)}`;
+export function capturedBindingNotice(binding: string, input: KeyboardInput): string {
+  return `Learned: ${describeBinding(binding)} · key: ${input.key || "(empty)"} · code: ${input.code || "(empty)"}`;
 }

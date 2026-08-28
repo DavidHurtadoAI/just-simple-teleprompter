@@ -336,6 +336,13 @@
   height: 48px;
 }
 
+.jst-key-capture-diagnostic {
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+}
+
 .jst-settings-intro {
   margin: -4px 0 8px;
 }

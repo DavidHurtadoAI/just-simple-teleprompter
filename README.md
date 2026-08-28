@@ -27,7 +27,9 @@ Open any Markdown note, choose a direction, and read. The plugin never modifies 
 - `ArrowRight`, `ArrowDown`, and `PageDown` act as the right pedal.
 - `ArrowLeft`, `ArrowUp`, and `PageUp` act as the left pedal.
 
-Custom pedal keys can be learned from the plugin settings. Pedals must present themselves to the operating system as a Bluetooth keyboard.
+Custom pedal keys can be learned from the plugin settings. The learning dialog shows the raw `key` and `code` reported by the operating system and falls back to the usable value when iOS reports one of them as unidentified. Pedals must present themselves to the operating system as a Bluetooth keyboard.
+
+The commands **Press forward control**, **Press reverse control**, **Pause or resume**, and **Pause** can also be assigned in **Settings → Hotkeys**. The plugin does not install default hotkeys.
 
 ## Use
 

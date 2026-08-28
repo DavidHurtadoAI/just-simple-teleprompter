@@ -1,7 +1,7 @@
 import { Menu, Notice, Plugin, TAbstractFile, TFile } from "obsidian";
 import { JustSimpleTeleprompterSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, mergeSettings } from "./types";
-import type { TeleprompterSettings } from "./types";
+import type { TeleprompterAction, TeleprompterSettings } from "./types";
 import { TELEPROMPTER_VIEW_TYPE, TeleprompterView } from "./view";
 
 export default class JustSimpleTeleprompterPlugin extends Plugin {
@@ -26,6 +26,11 @@ export default class JustSimpleTeleprompterPlugin extends Plugin {
       name: "Open current note",
       callback: () => void this.openActiveFile()
     });
+
+    this.addPlaybackCommand("forward-control", "Press forward control", "forward");
+    this.addPlaybackCommand("reverse-control", "Press reverse control", "reverse");
+    this.addPlaybackCommand("pause-resume", "Pause or resume", "toggle");
+    this.addPlaybackCommand("pause", "Pause", "pause");
 
     this.registerEvent(
       this.app.workspace.on("file-menu", (menu, file) => this.addFileMenuItem(menu, file))
@@ -82,6 +87,23 @@ export default class JustSimpleTeleprompterPlugin extends Plugin {
         .setTitle("Open in Just Simple Teleprompter")
         .setIcon("presentation")
         .onClick(() => void this.openFile(file));
+    });
+  }
+
+  private addPlaybackCommand(id: string, name: string, action: TeleprompterAction): void {
+    this.addCommand({
+      id,
+      name,
+      checkCallback: (checking) => {
+        const view = this.app.workspace.getActiveViewOfType(TeleprompterView);
+        if (!view?.canControlPlayback()) {
+          return false;
+        }
+        if (!checking) {
+          view.performAction(action);
+        }
+        return true;
+      }
     });
   }
 }

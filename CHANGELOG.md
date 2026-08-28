@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.9
+
+- Make pedal learning resilient to iOS events whose `code` or `key` is `Unidentified`.
+- Show the raw keyboard `key`, `code`, and repeat state while learning a pedal.
+- Recognize legacy iOS arrow-key names and usable key codes as automatic pedal input.
+- Add assignable Obsidian commands for forward, reverse, pause/resume, and pause.
+
 ## 0.1.8
 
 - Keep subpixel scroll progress internally so automatic scrolling works in mobile WebViews that round `scrollTop`.

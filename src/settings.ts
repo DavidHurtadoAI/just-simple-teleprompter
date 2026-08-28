@@ -92,7 +92,7 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
         items: [
           {
             name: "Pedal behavior",
-            desc: "When paused, right starts forward and left starts reverse. While moving, either pedal pauses. Built-in Obsidian shortcuts accept arrow keys and page up/page down without using Learn."
+            desc: "When paused, down starts forward and up starts reverse. While moving, either key pauses. Built-in Obsidian shortcuts use only the up and down arrow keys without Learn."
           },
           this.createPedalDefinition("Left pedal", "reverse", "leftPedalBinding"),
           this.createPedalDefinition("Right pedal", "forward", "rightPedalBinding"),

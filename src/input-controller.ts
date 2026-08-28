@@ -3,8 +3,8 @@ import type {
   TeleprompterSettings
 } from "./types";
 
-const AUTOMATIC_FORWARD_KEYS = new Set(["ArrowRight", "ArrowDown", "PageDown"]);
-const AUTOMATIC_REVERSE_KEYS = new Set(["ArrowLeft", "ArrowUp", "PageUp"]);
+const AUTOMATIC_FORWARD_KEYS = new Set(["ArrowDown"]);
+const AUTOMATIC_REVERSE_KEYS = new Set(["ArrowUp"]);
 const IOS_KEY_ALIASES = new Map([
   ["UIKeyInputRightArrow", "ArrowRight"],
   ["UIKeyInputDownArrow", "ArrowDown"],

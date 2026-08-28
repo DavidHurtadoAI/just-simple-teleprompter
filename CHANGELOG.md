@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.13
+
+- Use only the up arrow for reverse and the down arrow for forward in built-in pedal mode.
+- Remove page up/down and left/right arrows from the teleprompter view's built-in key scope.
+
 ## 0.1.12
 
 - Route page up/down and arrow controls through a hotkey scope owned by the focused teleprompter view.

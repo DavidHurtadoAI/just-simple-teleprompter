@@ -53,8 +53,8 @@ export class TeleprompterView extends FileView {
   constructor(leaf: WorkspaceLeaf, private readonly plugin: JustSimpleTeleprompterPlugin) {
     super(leaf);
     this.scope = new Scope(this.app.scope);
-    this.registerPedalScopeKeys(["PageDown", "ArrowDown", "ArrowRight"], "forward");
-    this.registerPedalScopeKeys(["PageUp", "ArrowUp", "ArrowLeft"], "reverse");
+    this.registerPedalScopeKeys(["ArrowDown"], "forward");
+    this.registerPedalScopeKeys(["ArrowUp"], "reverse");
   }
 
   getViewType(): string {

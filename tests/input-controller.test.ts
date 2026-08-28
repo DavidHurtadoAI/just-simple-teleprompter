@@ -26,13 +26,20 @@ type KeyboardEventLike = {
 };
 
 describe("automatic pedal mapping", () => {
-  it.each(["ArrowRight", "ArrowDown", "PageDown"])("maps %s forward", (key) => {
-    expect(resolveTeleprompterAction(input(key), automatic)).toBe("forward");
+  it("maps only ArrowDown forward", () => {
+    expect(resolveTeleprompterAction(input("ArrowDown"), automatic)).toBe("forward");
   });
 
-  it.each(["ArrowLeft", "ArrowUp", "PageUp"])("maps %s in reverse", (key) => {
-    expect(resolveTeleprompterAction(input(key), automatic)).toBe("reverse");
+  it("maps only ArrowUp in reverse", () => {
+    expect(resolveTeleprompterAction(input("ArrowUp"), automatic)).toBe("reverse");
   });
+
+  it.each(["ArrowLeft", "ArrowRight", "PageUp", "PageDown"])(
+    "does not map %s as a built-in pedal key",
+    (key) => {
+      expect(resolveTeleprompterAction(input(key), automatic)).toBeNull();
+    }
+  );
 
   it("maps Space to toggle and Escape to pause", () => {
     expect(resolveTeleprompterAction(input(" ", "Space"), automatic)).toBe("toggle");
@@ -44,16 +51,16 @@ describe("automatic pedal mapping", () => {
   });
 
   it("accepts legacy iOS arrow key names", () => {
-    expect(resolveTeleprompterAction(input("UIKeyInputRightArrow", "Unidentified"), automatic)).toBe(
+    expect(resolveTeleprompterAction(input("UIKeyInputDownArrow", "Unidentified"), automatic)).toBe(
       "forward"
     );
-    expect(resolveTeleprompterAction(input("UIKeyInputLeftArrow", "Unidentified"), automatic)).toBe(
+    expect(resolveTeleprompterAction(input("UIKeyInputUpArrow", "Unidentified"), automatic)).toBe(
       "reverse"
     );
   });
 
-  it("falls back to a usable code when iOS reports an unidentified key", () => {
-    expect(resolveTeleprompterAction(input("Unidentified", "PageDown"), automatic)).toBe(
+  it("falls back to an arrow code when iOS reports an unidentified key", () => {
+    expect(resolveTeleprompterAction(input("Unidentified", "ArrowDown"), automatic)).toBe(
       "forward"
     );
   });
@@ -61,13 +68,13 @@ describe("automatic pedal mapping", () => {
   it("uses legacy numeric key codes when iOS hides both key and code", () => {
     expect(
       resolveTeleprompterAction(
-        { ...input("Unidentified", "Unidentified"), keyCode: 34 },
+        { ...input("Unidentified", "Unidentified"), keyCode: 40 },
         automatic
       )
     ).toBe("forward");
     expect(
       resolveTeleprompterAction(
-        { ...input("Unidentified", "Unidentified"), which: 33 },
+        { ...input("Unidentified", "Unidentified"), which: 38 },
         automatic
       )
     ).toBe("reverse");

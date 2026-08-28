@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.10
+
+- Wait for a learned pedal key to be persisted before closing the capture dialog.
+- Update the visible pedal assignment immediately instead of relying on a settings-tab refresh.
+- Keep the capture dialog open with an explicit error if the key was received but could not be saved.
+- Learn legacy numeric and WebKit key identifiers when iOS hides the normal `key` and `code` values.
+
 ## 0.1.9
 
 - Make pedal learning resilient to iOS events whose `code` or `key` is `Unidentified`.

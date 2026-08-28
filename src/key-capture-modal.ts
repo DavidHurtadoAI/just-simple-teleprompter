@@ -8,11 +8,12 @@ import type { KeyboardInput } from "./input-controller";
 
 export class KeyCaptureModal extends Modal {
   private keydownHandler: ((event: KeyboardEvent) => void) | null = null;
+  private isSaving = false;
 
   constructor(
     app: App,
     private readonly pedalName: string,
-    private readonly onCapture: (binding: string, input: KeyboardInput) => void
+    private readonly onCapture: (binding: string, input: KeyboardInput) => Promise<void>
   ) {
     super(app);
   }
@@ -35,34 +36,70 @@ export class KeyCaptureModal extends Modal {
     this.keydownHandler = (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      diagnostic.setText(describeKeyboardInput(event));
 
-      if (event.key === "Escape") {
+      if (this.isSaving) {
+        return;
+      }
+
+      const legacyEvent = event as unknown as {
+        keyCode?: number;
+        which?: number;
+        keyIdentifier?: string;
+      };
+      const input: KeyboardInput = {
+        key: event.key,
+        code: event.code,
+        repeat: event.repeat,
+        keyCode: legacyEvent.keyCode,
+        which: legacyEvent.which,
+        keyIdentifier: legacyEvent.keyIdentifier
+      };
+      diagnostic.setText(describeKeyboardInput(input));
+
+      if (input.key === "Escape") {
         this.close();
         return;
       }
 
-      if (isModifierOnly(event.key)) {
+      if (isModifierOnly(input.key)) {
         prompt.setText("Modifier keys cannot be assigned on their own.");
         return;
       }
 
-      if (event.code === "Space" || event.key === " ") {
+      if (input.code === "Space" || input.key === " ") {
         prompt.setText("Space is reserved for pause/resume. Press another pedal key.");
         return;
       }
 
-      const binding = bindingFromKeyboardInput(event);
+      const binding = bindingFromKeyboardInput(input);
       if (binding === null) {
         prompt.setText("iOS reported an unidentified key. Try another pedal mode.");
         return;
       }
 
-      this.onCapture(binding, event);
-      this.close();
+      this.isSaving = true;
+      prompt.setText(`Saving ${describeBinding(binding)}…`);
+      void this.saveCapture(binding, input, prompt, diagnostic);
     };
 
     window.addEventListener("keydown", this.keydownHandler, true);
+  }
+
+  private async saveCapture(
+    binding: string,
+    input: KeyboardInput,
+    prompt: HTMLParagraphElement,
+    diagnostic: HTMLParagraphElement
+  ): Promise<void> {
+    try {
+      await this.onCapture(binding, input);
+      this.close();
+    } catch (error) {
+      this.isSaving = false;
+      prompt.setText("The key was received, but its assignment could not be saved. Try again.");
+      diagnostic.setText(`${describeKeyboardInput(input)} · save failed`);
+      console.error("Just Simple Teleprompter could not save a pedal binding", error);
+    }
   }
 
   onClose(): void {
@@ -79,5 +116,5 @@ function isModifierOnly(key: string): boolean {
 }
 
 export function capturedBindingNotice(binding: string, input: KeyboardInput): string {
-  return `Learned: ${describeBinding(binding)} · key: ${input.key || "(empty)"} · code: ${input.code || "(empty)"}`;
+  return `Learned: ${describeBinding(binding)} · ${describeKeyboardInput(input).replace("Received ", "")}`;
 }

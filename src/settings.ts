@@ -1,5 +1,9 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
-import type { SettingDefinition, SettingDefinitionItem } from "obsidian";
+import type {
+  ExtraButtonComponent,
+  SettingDefinition,
+  SettingDefinitionItem
+} from "obsidian";
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { describeBinding } from "./input-controller";
 import { capturedBindingNotice, KeyCaptureModal } from "./key-capture-modal";
@@ -139,38 +143,59 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
     return {
       name,
       desc: `${action === "reverse" ? "Reverse" : "Forward"} - ${describeBinding(binding)}`,
-      render: (setting) => this.addPedalControls(setting, name, key)
+      render: (setting) => this.addPedalControls(setting, name, action, key)
     };
   }
 
-  private addPedalControls(setting: Setting, name: string, key: PedalBindingKey): void {
+  private addPedalControls(
+    setting: Setting,
+    name: string,
+    action: "reverse" | "forward",
+    key: PedalBindingKey
+  ): void {
     const binding = this.teleprompter.settings[key];
+    let resetButton: ExtraButtonComponent | null = null;
+    const showBinding = (value: string | null): void => {
+      setting.setDesc(
+        `${action === "reverse" ? "Reverse" : "Forward"} - ${describeBinding(value)}`
+      );
+      resetButton?.setDisabled(value === null);
+    };
+
     setting.addButton((button) => {
       button.setButtonText("Learn").onClick(() => {
-        new KeyCaptureModal(this.app, name.toLowerCase(), (captured, input) => {
+        new KeyCaptureModal(this.app, name.toLowerCase(), async (captured, input) => {
           const otherKey = key === "leftPedalBinding" ? "rightPedalBinding" : "leftPedalBinding";
           const patch = {
             [key]: captured,
             ...(this.teleprompter.settings[otherKey] === captured ? { [otherKey]: null } : {})
           };
-          void this.teleprompter.updateSettings(patch).then(() => {
-            new Notice(capturedBindingNotice(captured, input));
-            this.update();
-          });
+          await this.teleprompter.updateSettings(patch);
+
+          if (this.teleprompter.settings[key] !== captured) {
+            throw new Error("The saved pedal binding did not match the captured key");
+          }
+
+          showBinding(captured);
+          this.update();
+          new Notice(capturedBindingNotice(captured, input));
         }).open();
       });
     });
 
-    if (binding !== null) {
-      setting.addExtraButton((button) => {
-        button
-          .setIcon("reset")
-          .setTooltip("Use automatic keys")
-          .onClick(() => {
-            void this.teleprompter.updateSettings({ [key]: null }).then(() => this.update());
+    setting.addExtraButton((button) => {
+      resetButton = button;
+      button
+        .setIcon("reset")
+        .setTooltip("Use automatic keys")
+        .setDisabled(binding === null)
+        .onClick(() => {
+          void this.teleprompter.updateSettings({ [key]: null }).then(() => {
+            showBinding(null);
+            this.update();
           });
-      });
-    }
+        });
+    });
   }
 }
 

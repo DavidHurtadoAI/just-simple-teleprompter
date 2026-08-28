@@ -20,6 +20,9 @@ type KeyboardEventLike = {
   key: string;
   code: string;
   repeat: boolean;
+  keyCode?: number;
+  which?: number;
+  keyIdentifier?: string;
 };
 
 describe("automatic pedal mapping", () => {
@@ -54,6 +57,21 @@ describe("automatic pedal mapping", () => {
       "forward"
     );
   });
+
+  it("uses legacy numeric key codes when iOS hides both key and code", () => {
+    expect(
+      resolveTeleprompterAction(
+        { ...input("Unidentified", "Unidentified"), keyCode: 34 },
+        automatic
+      )
+    ).toBe("forward");
+    expect(
+      resolveTeleprompterAction(
+        { ...input("Unidentified", "Unidentified"), which: 33 },
+        automatic
+      )
+    ).toBe("reverse");
+  });
 });
 
 describe("learned pedal mapping", () => {
@@ -72,9 +90,33 @@ describe("learned pedal mapping", () => {
     expect(bindingFromKeyboardInput(input("Unidentified", "Unidentified"))).toBeNull();
   });
 
+  it("learns a numeric or WebKit key identity as a final iOS fallback", () => {
+    expect(
+      bindingFromKeyboardInput({
+        ...input("Unidentified", "Unidentified"),
+        keyCode: 34
+      })
+    ).toBe("keyCode:34");
+    expect(
+      bindingFromKeyboardInput({
+        ...input("Unidentified", "Unidentified"),
+        keyIdentifier: "PageDown"
+      })
+    ).toBe("keyIdentifier:PageDown");
+  });
+
   it("describes the complete event for pedal diagnostics", () => {
     expect(describeKeyboardInput(input("PageDown", "Unidentified"))).toBe(
       "Received key: PageDown · code: Unidentified"
+    );
+    expect(
+      describeKeyboardInput({
+        ...input("Unidentified", "Unidentified"),
+        keyCode: 34,
+        keyIdentifier: "PageDown"
+      })
+    ).toBe(
+      "Received key: Unidentified · code: Unidentified · keyCode: 34 · keyIdentifier: PageDown"
     );
   });
 
@@ -87,5 +129,16 @@ describe("learned pedal mapping", () => {
     expect(resolveTeleprompterAction(input("a", "KeyA"), settings)).toBe("reverse");
     expect(resolveTeleprompterAction(input("ArrowLeft"), settings)).toBeNull();
     expect(resolveTeleprompterAction(input("ArrowDown"), settings)).toBe("forward");
+  });
+
+  it("matches a learned legacy numeric key code", () => {
+    const settings = {
+      leftPedalBinding: null,
+      rightPedalBinding: "keyCode:34"
+    };
+    const pageDown = { ...input("Unidentified", "Unidentified"), keyCode: 34 };
+
+    expect(matchesBinding(pageDown, "keyCode:34")).toBe(true);
+    expect(resolveTeleprompterAction(pageDown, settings)).toBe("forward");
   });
 });

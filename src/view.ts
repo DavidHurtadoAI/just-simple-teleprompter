@@ -4,6 +4,7 @@ import {
   MarkdownRenderer,
   Notice,
   Platform,
+  Scope,
   TFile,
   WorkspaceLeaf,
   getFrontMatterInfo,
@@ -51,6 +52,9 @@ export class TeleprompterView extends FileView {
 
   constructor(leaf: WorkspaceLeaf, private readonly plugin: JustSimpleTeleprompterPlugin) {
     super(leaf);
+    this.scope = new Scope(this.app.scope);
+    this.registerPedalScopeKeys(["PageDown", "ArrowDown", "ArrowRight"], "forward");
+    this.registerPedalScopeKeys(["PageUp", "ArrowUp", "ArrowLeft"], "reverse");
   }
 
   getViewType(): string {
@@ -168,6 +172,17 @@ export class TeleprompterView extends FileView {
 
   focusInputSurface(): void {
     this.scrollEl?.focus({ preventScroll: true });
+  }
+
+  private registerPedalScopeKeys(keys: string[], action: TeleprompterAction): void {
+    for (const key of keys) {
+      this.scope?.register([], key, (event) => {
+        if (!event.repeat) {
+          this.performAction(action);
+        }
+        return false;
+      });
+    }
   }
 
   private buildInterface(): void {

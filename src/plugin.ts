@@ -1,5 +1,4 @@
 import { Menu, Notice, Plugin, TAbstractFile, TFile } from "obsidian";
-import type { Hotkey } from "obsidian";
 import { JustSimpleTeleprompterSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, mergeSettings } from "./types";
 import type { TeleprompterAction, TeleprompterSettings } from "./types";
@@ -28,16 +27,8 @@ export default class JustSimpleTeleprompterPlugin extends Plugin {
       callback: () => void this.openActiveFile()
     });
 
-    this.addPlaybackCommand("forward-control", "Press forward control", "forward", [
-      { modifiers: [], key: "PageDown" },
-      { modifiers: [], key: "ArrowDown" },
-      { modifiers: [], key: "ArrowRight" }
-    ]);
-    this.addPlaybackCommand("reverse-control", "Press reverse control", "reverse", [
-      { modifiers: [], key: "PageUp" },
-      { modifiers: [], key: "ArrowUp" },
-      { modifiers: [], key: "ArrowLeft" }
-    ]);
+    this.addPlaybackCommand("forward-control", "Press forward control", "forward");
+    this.addPlaybackCommand("reverse-control", "Press reverse control", "reverse");
     this.addPlaybackCommand("pause-resume", "Pause or resume", "toggle");
     this.addPlaybackCommand("pause", "Pause", "pause");
 
@@ -100,16 +91,10 @@ export default class JustSimpleTeleprompterPlugin extends Plugin {
     });
   }
 
-  private addPlaybackCommand(
-    id: string,
-    name: string,
-    action: TeleprompterAction,
-    hotkeys: Hotkey[] = []
-  ): void {
+  private addPlaybackCommand(id: string, name: string, action: TeleprompterAction): void {
     this.addCommand({
       id,
       name,
-      hotkeys,
       checkCallback: (checking) => {
         const view = this.app.workspace.getActiveViewOfType(TeleprompterView);
         if (!view?.canControlPlayback()) {

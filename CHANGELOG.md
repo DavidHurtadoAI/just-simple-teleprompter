@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.12
+
+- Route page up/down and arrow controls through a hotkey scope owned by the focused teleprompter view.
+- Keep the commands assignable without installing conflicting global default hotkeys.
+
 ## 0.1.11
 
 - Register page up/down and arrow controls as default Obsidian command hotkeys.

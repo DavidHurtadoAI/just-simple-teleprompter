@@ -1,7 +1,7 @@
 {
   "id": "just-simple-teleprompter",
   "name": "Just Simple Teleprompter",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "minAppVersion": "1.13.7",
   "description": "Read any Markdown note as a simple, mobile-friendly teleprompter.",
   "author": "David Hurtado",

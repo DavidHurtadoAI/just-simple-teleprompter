@@ -75,6 +75,10 @@ describe("automatic pedal mapping", () => {
 });
 
 describe("learned pedal mapping", () => {
+  it("labels an empty custom binding as the built-in key mode", () => {
+    expect(describeBinding(null)).toBe("Built-in keys");
+  });
+
   it("stores and describes a physical key code", () => {
     const binding = bindingFromKeyboardInput(input("MediaTrackNext", "MediaTrackNext"));
     expect(binding).toBe("code:MediaTrackNext");

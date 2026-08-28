@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.11
+
+- Register page up/down and arrow controls as default Obsidian command hotkeys.
+- Focus the teleprompter input surface so iOS can route external-keyboard events to it.
+- Deduplicate an action when both the view listener and Obsidian hotkey layer receive it.
+- Rename the empty custom binding from `Automatic` to `Built-in keys`.
+
 ## 0.1.10
 
 - Wait for a learned pedal key to be persisted before closing the capture dialog.

@@ -20,6 +20,7 @@ const CONTROLS_HIDE_DELAY_MS = 1800;
 const SPEED_STEP = 4;
 const FONT_SIZE_STEP = 2;
 const SOURCE_RELOAD_DELAY_MS = 200;
+const DUPLICATE_ACTION_WINDOW_MS = 80;
 
 interface PlaybackSnapshot {
   scrollTop: number;
@@ -45,6 +46,7 @@ export class TeleprompterView extends FileView {
   private preservedPlayback: PlaybackSnapshot | null = null;
   private renderGeneration = 0;
   private isViewOpen = false;
+  private lastAction: { action: TeleprompterAction; at: number } | null = null;
   private readonly wakeLock = new WakeLockController();
 
   constructor(leaf: WorkspaceLeaf, private readonly plugin: JustSimpleTeleprompterPlugin) {
@@ -138,6 +140,15 @@ export class TeleprompterView extends FileView {
       return false;
     }
 
+    const now = performance.now();
+    if (
+      this.lastAction?.action === action &&
+      now - this.lastAction.at < DUPLICATE_ACTION_WINDOW_MS
+    ) {
+      return true;
+    }
+    this.lastAction = { action, at: now };
+
     switch (action) {
       case "forward":
         this.engine.press(1);
@@ -153,6 +164,10 @@ export class TeleprompterView extends FileView {
         break;
     }
     return true;
+  }
+
+  focusInputSurface(): void {
+    this.scrollEl?.focus({ preventScroll: true });
   }
 
   private buildInterface(): void {
@@ -255,6 +270,7 @@ export class TeleprompterView extends FileView {
     this.readerEl = reader;
 
     this.registerDomEvent(root, "pointerdown", () => this.revealControls());
+    this.registerDomEvent(scroll, "pointerdown", () => this.focusInputSurface());
     this.registerDomEvent(root, "mousemove", () => this.revealControls());
     this.registerDomEvent(scroll, "scroll", () => {
       if (!this.engine?.isRunning) {
@@ -328,6 +344,7 @@ export class TeleprompterView extends FileView {
       this.applySettings();
       this.engine.restore(snapshot?.direction ?? 1, snapshot?.running ?? false);
       this.preservedPlayback = null;
+      this.focusInputSurface();
     } catch (error) {
       if (generation !== this.renderGeneration) {
         return;

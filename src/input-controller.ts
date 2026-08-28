@@ -57,7 +57,7 @@ export function bindingFromKeyboardInput(
 
 export function describeBinding(binding: string | null): string {
   if (binding === null) {
-    return "Automatic";
+    return "Built-in keys";
   }
   const separator = binding.indexOf(":");
   return separator === -1 ? binding : binding.slice(separator + 1);

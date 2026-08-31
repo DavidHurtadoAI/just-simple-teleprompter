@@ -1,6 +1,7 @@
 import { App, Modal, Notice, Platform, setIcon } from "obsidian";
 
 const MAX_EVENTS = 40;
+let recoveredEntries: string[] = [];
 const EVENT_TYPES = [
   "keydown",
   "keyup",
@@ -32,8 +33,8 @@ interface LegacyKeyboardEvent {
 }
 
 export class InputInspectorModal extends Modal {
-  private readonly startedAt = performance.now();
-  private readonly entries: string[] = [];
+  private startedAt = performance.now();
+  private readonly entries: string[] = [...recoveredEntries];
   private readonly listeners: Array<{
     type: (typeof EVENT_TYPES)[number];
     handler: EventListener;
@@ -42,9 +43,16 @@ export class InputInspectorModal extends Modal {
   private countEl: HTMLElement | null = null;
   private readyTimer: number | null = null;
   private ready = false;
+  private state: "preparing" | "listening" | "paused" | "recovered" =
+    this.entries.length > 0 ? "recovered" : "preparing";
 
   constructor(app: App) {
     super(app);
+  }
+
+  open(): void {
+    this.attachListeners();
+    super.open();
   }
 
   onOpen(): void {
@@ -70,26 +78,23 @@ export class InputInspectorModal extends Modal {
         "aria-label": "Captured pedal input events"
       }
     });
-    this.logEl.value = "Waiting for pedal input…";
+    this.renderLog();
 
     const actions = this.contentEl.createDiv({ cls: "jst-input-inspector-actions" });
-    const clearButton = actions.createEl("button", { text: "Clear" });
-    clearButton.addEventListener("click", () => this.clearLog());
+    const newCaptureButton = actions.createEl("button", { text: "New capture" });
+    newCaptureButton.addEventListener("click", () => this.startCapture());
+    const pauseButton = actions.createEl("button", { text: "Pause" });
+    pauseButton.addEventListener("click", () => this.pauseCapture());
     const copyButton = actions.createEl("button", { text: "Copy diagnostics" });
     copyButton.addClass("mod-cta");
     copyButton.addEventListener("click", () => void this.copyDiagnostics());
 
-    for (const type of EVENT_TYPES) {
-      const handler: EventListener = (event) => this.captureEvent(event);
-      window.addEventListener(type, handler, true);
-      this.listeners.push({ type, handler });
+    if (this.entries.length === 0) {
+      this.readyTimer = window.setTimeout(() => {
+        this.readyTimer = null;
+        this.startCapture();
+      }, 700);
     }
-
-    this.readyTimer = window.setTimeout(() => {
-      this.readyTimer = null;
-      this.ready = true;
-      this.clearLog();
-    }, 700);
   }
 
   onClose(): void {
@@ -118,15 +123,43 @@ export class InputInspectorModal extends Modal {
     if (this.entries.length > MAX_EVENTS) {
       this.entries.splice(0, this.entries.length - MAX_EVENTS);
     }
+    recoveredEntries = [...this.entries];
     this.renderLog();
+    event.preventDefault();
+    event.stopImmediatePropagation();
   }
 
   private isInspectorControl(target: EventTarget | null): boolean {
     return target instanceof Element && target.closest(".jst-input-inspector-actions") !== null;
   }
 
-  private clearLog(): void {
+  private attachListeners(): void {
+    if (this.listeners.length > 0) {
+      return;
+    }
+    for (const type of EVENT_TYPES) {
+      const handler: EventListener = (event) => this.captureEvent(event);
+      window.addEventListener(type, handler, true);
+      this.listeners.push({ type, handler });
+    }
+  }
+
+  private startCapture(): void {
+    if (this.readyTimer !== null) {
+      window.clearTimeout(this.readyTimer);
+      this.readyTimer = null;
+    }
     this.entries.length = 0;
+    recoveredEntries = [];
+    this.startedAt = performance.now();
+    this.ready = true;
+    this.state = "listening";
+    this.renderLog();
+  }
+
+  private pauseCapture(): void {
+    this.ready = false;
+    this.state = "paused";
     this.renderLog();
   }
 
@@ -138,10 +171,23 @@ export class InputInspectorModal extends Modal {
       this.logEl.scrollTop = this.logEl.scrollHeight;
     }
     this.countEl?.setText(
-      this.entries.length === 0
-        ? "Listening — press the pedals"
-        : `${this.entries.length} event${this.entries.length === 1 ? "" : "s"} captured`
+      this.statusText()
     );
+  }
+
+  private statusText(): string {
+    if (this.state === "recovered") {
+      return `${this.entries.length} events recovered — copy them or start a new capture`;
+    }
+    if (this.state === "preparing") {
+      return "Getting ready…";
+    }
+    if (this.state === "paused") {
+      return `${this.entries.length} event${this.entries.length === 1 ? "" : "s"} saved — capture paused`;
+    }
+    return this.entries.length === 0
+      ? "Listening — press the pedals"
+      : `${this.entries.length} event${this.entries.length === 1 ? "" : "s"} captured`;
   }
 
   private async copyDiagnostics(): Promise<void> {

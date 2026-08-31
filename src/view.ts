@@ -13,6 +13,7 @@ import {
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { resolveTeleprompterAction } from "./input-controller";
 import { ScrollEngine, clampScrollPosition } from "./scroll-engine";
+import { TouchPedalController } from "./touch-pedal-controller";
 import type { MotionState, ScrollDirection, TeleprompterAction } from "./types";
 import { WakeLockController } from "./wake-lock-controller";
 
@@ -49,6 +50,7 @@ export class TeleprompterView extends FileView {
   private isViewOpen = false;
   private lastAction: { action: TeleprompterAction; at: number } | null = null;
   private readonly wakeLock = new WakeLockController();
+  private readonly touchPedal = new TouchPedalController();
 
   constructor(leaf: WorkspaceLeaf, private readonly plugin: JustSimpleTeleprompterPlugin) {
     super(leaf);
@@ -77,6 +79,25 @@ export class TeleprompterView extends FileView {
     this.isViewOpen = true;
     this.buildInterface();
     this.registerDomEvent(window, "keydown", (event) => this.handleKeydown(event), true);
+    this.registerDomEvent(
+      window,
+      "touchstart",
+      (event) => this.handleTouchPedalStart(event),
+      { capture: true, passive: false }
+    );
+    this.registerDomEvent(
+      window,
+      "touchmove",
+      (event) => this.handleTouchPedalMove(event),
+      { capture: true, passive: false }
+    );
+    this.registerDomEvent(
+      window,
+      "touchend",
+      (event) => this.handleTouchPedalEnd(event),
+      { capture: true, passive: false }
+    );
+    this.registerDomEvent(window, "touchcancel", () => this.touchPedal.cancel(), true);
     this.registerDomEvent(document, "visibilitychange", () => {
       void this.wakeLock.handleVisibilityChange();
     });
@@ -416,6 +437,57 @@ export class TeleprompterView extends FileView {
     event.stopPropagation();
 
     this.performAction(action);
+  }
+
+  private handleTouchPedalStart(event: TouchEvent): void {
+    if (!this.canReceiveTouchPedal() || event.touches.length !== 1) {
+      this.touchPedal.cancel();
+      return;
+    }
+    const touch = event.touches.item(0);
+    if (touch && this.touchPedal.begin(touch, performance.now())) {
+      this.consumeTouchPedalEvent(event);
+    }
+  }
+
+  private handleTouchPedalMove(event: TouchEvent): void {
+    if (!this.touchPedal.isTracking) {
+      return;
+    }
+    const touch = event.touches.item(0);
+    if (touch && this.touchPedal.move(touch)) {
+      this.consumeTouchPedalEvent(event);
+    }
+  }
+
+  private handleTouchPedalEnd(event: TouchEvent): void {
+    if (!this.touchPedal.isTracking) {
+      return;
+    }
+    const touch = event.changedTouches.item(0);
+    if (!touch) {
+      this.touchPedal.cancel();
+      return;
+    }
+    const action = this.touchPedal.end(touch, performance.now());
+    this.consumeTouchPedalEvent(event);
+    if (action !== null) {
+      this.performAction(action);
+    }
+  }
+
+  private canReceiveTouchPedal(): boolean {
+    return (
+      Platform.isIosApp &&
+      this.engine !== null &&
+      this.app.workspace.getActiveViewOfType(TeleprompterView) === this &&
+      document.querySelector(".modal-container") === null
+    );
+  }
+
+  private consumeTouchPedalEvent(event: TouchEvent): void {
+    event.preventDefault();
+    event.stopImmediatePropagation();
   }
 
   private handleMotionChange(state: MotionState, direction: ScrollDirection): void {

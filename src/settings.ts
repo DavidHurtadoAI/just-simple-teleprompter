@@ -6,6 +6,7 @@ import type {
 } from "obsidian";
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { describeBinding } from "./input-controller";
+import { InputInspectorModal } from "./input-inspector-modal";
 import { capturedBindingNotice, KeyCaptureModal } from "./key-capture-modal";
 import { DEFAULT_SETTINGS } from "./types";
 import type { TeleprompterSettings } from "./types";
@@ -99,6 +100,17 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
           {
             name: "Pause or resume",
             desc: "Space bar, or the center button on screen. Escape always pauses."
+          },
+          {
+            name: "Pedal input inspector",
+            desc: "See what an iPhone or iPad actually receives from the pedal.",
+            render: (setting) => {
+              setting.addButton((button) => {
+                button.setButtonText("Inspect input").onClick(() => {
+                  new InputInspectorModal(this.app).open();
+                });
+              });
+            }
           }
         ]
       }

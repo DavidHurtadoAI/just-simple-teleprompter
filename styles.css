@@ -343,6 +343,51 @@
   font-size: var(--font-ui-smaller);
 }
 
+.jst-input-inspector-modal {
+  width: min(92vw, 720px);
+}
+
+.jst-input-inspector-intro {
+  margin-top: 0;
+}
+
+.jst-input-inspector-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.jst-input-inspector-status-icon {
+  display: inline-flex;
+}
+
+.jst-input-inspector-status-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.jst-input-inspector-log {
+  box-sizing: border-box;
+  width: 100%;
+  height: min(44vh, 360px);
+  padding: 10px;
+  resize: vertical;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.jst-input-inspector-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .jst-settings-intro {
   margin: -4px 0 8px;
 }

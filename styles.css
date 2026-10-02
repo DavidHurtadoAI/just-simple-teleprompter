@@ -5,7 +5,7 @@
 
 .jst-root {
   --jst-font-size: 44px;
-  --jst-line-height: 1.35;
+  --jst-line-gap: 0.35em;
   position: relative;
   width: 100%;
   height: 100%;
@@ -40,7 +40,7 @@
   padding-inline: clamp(22px, 7vw, 96px);
   color: inherit;
   font-size: var(--jst-font-size);
-  line-height: var(--jst-line-height);
+  line-height: 1.35;
   overflow-wrap: anywhere;
 }
 
@@ -77,6 +77,20 @@
 .jst-reader .jst-document :is(p, li, blockquote) {
   font-size: inherit;
   line-height: inherit;
+}
+
+.jst-reader .jst-document .jst-source-line {
+  display: block;
+}
+
+.jst-reader .jst-document .jst-source-line + .jst-source-line {
+  margin-top: var(--jst-line-gap);
+}
+
+.jst-reader .jst-document > * + *,
+.jst-reader .jst-document li + li,
+.jst-reader .jst-document :is(li, blockquote) > :is(p, ul, ol, blockquote):not(:first-child) {
+  padding-top: var(--jst-line-gap);
 }
 
 .jst-reader .jst-document :is(h1, h2, h3, h4, h5, h6) {

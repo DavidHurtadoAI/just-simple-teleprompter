@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.17
+
+- Make Line spacing add space at line breaks written in Markdown, including paragraph and list-item boundaries.
+- Keep the line height within wrapped text fixed, independent of the Line spacing setting.
+- Preserve inline formatting, nested lists, code, and tables when spacing Markdown lines.
+
 ## 0.1.13
 
 - Use only the up arrow for reverse and the down arrow for forward in built-in pedal mode.

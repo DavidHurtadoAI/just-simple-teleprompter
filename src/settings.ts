@@ -49,7 +49,7 @@ export class JustSimpleTeleprompterSettingTab extends PluginSettingTab {
       },
       {
         name: "Line spacing",
-        desc: "Space between lines of teleprompter text.",
+        desc: "Extra space between lines written in the Markdown note. Wrapped text keeps its normal spacing.",
         control: {
           type: "slider",
           key: "lineHeight",

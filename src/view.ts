@@ -13,6 +13,7 @@ import {
 import type JustSimpleTeleprompterPlugin from "./plugin";
 import { resolveTeleprompterAction } from "./input-controller";
 import { ScrollEngine, clampScrollPosition } from "./scroll-engine";
+import { applySourceLineSpacing } from "./source-line-spacing";
 import { TouchPedalController } from "./touch-pedal-controller";
 import type { MotionState, ScrollDirection, TeleprompterAction } from "./types";
 import { WakeLockController } from "./wake-lock-controller";
@@ -147,7 +148,7 @@ export class TeleprompterView extends FileView {
   applySettings(): void {
     const settings = this.plugin.settings;
     this.rootEl?.style.setProperty("--jst-font-size", `${settings.fontSize}px`);
-    this.rootEl?.style.setProperty("--jst-line-height", settings.lineHeight.toString());
+    this.rootEl?.style.setProperty("--jst-line-gap", `${settings.lineHeight - 1}em`);
     this.scrollEl?.toggleClass("is-mirrored-horizontally", settings.mirrorHorizontally);
     this.scrollEl?.toggleClass("is-mirrored-vertically", settings.mirrorVertically);
     this.engine?.setSpeed(settings.speed);
@@ -353,6 +354,7 @@ export class TeleprompterView extends FileView {
         body.createEl("p", { cls: "jst-empty", text: "This note is empty." });
       } else {
         await MarkdownRenderer.render(this.app, markdown, body, file.path, component);
+        applySourceLineSpacing(body);
       }
 
       if (generation !== this.renderGeneration || file.path !== this.file?.path) {

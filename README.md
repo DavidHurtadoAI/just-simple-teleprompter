@@ -9,7 +9,7 @@ Open any Markdown note, choose a direction, and read. The plugin never modifies 
 ## Features
 
 - Automatic forward and reverse scrolling with pause/resume.
-- Compact controls for speed, text size, and playback, plus configurable line spacing.
+- Compact controls for speed, text size, and playback, plus configurable spacing between Markdown lines.
 - Independent horizontal and vertical mirroring, including both at once.
 - On-screen, keyboard, and Bluetooth pedal input, including iOS page turners that emulate touch gestures instead of keys.
 - Phone, tablet, and desktop support with one responsive control bar.
@@ -56,6 +56,8 @@ The commands **Press forward control**, **Press reverse control**, **Pause or re
 The screen controls hide while the text is moving and return when the view is touched or paused.
 
 Scroll speed, text size, and horizontal/vertical mirroring can all be changed directly from the compact controls in the teleprompter view. Mirror modes remain independent and can be combined for a 180-degree flip. Mirroring affects only the reader; controls remain normally oriented.
+
+**Line spacing** in the plugin settings adds space at line breaks written in the Markdown note, including paragraph and list-item boundaries. A long Markdown line can wrap across several screen rows; the spacing within those rows stays fixed. Set the slider to **1.00** for no extra space, or increase it to separate the Markdown lines more.
 
 All controls share one horizontal bar: transport on the left and speed, text size, and mirror controls on the right. The bar stays at the top in the mobile app so Obsidian's navigation cannot cover it, and at the bottom on desktop. Narrow phone layouts hide only the numeric readouts and keep every button on the same line; wider layouts show the values too.
 

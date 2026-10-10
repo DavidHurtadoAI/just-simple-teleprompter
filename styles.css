@@ -83,6 +83,37 @@
   display: block;
 }
 
+.jst-root .jst-document [data-jst-line-number] {
+  position: relative;
+}
+
+.jst-root .jst-document [data-jst-line-number]::before {
+  content: attr(data-jst-line-number);
+  visibility: hidden;
+  position: absolute;
+  inset-inline-end: calc(100% + 8px);
+  top: 0;
+  width: 5ch;
+  color: rgba(245, 245, 245, 0.28);
+  font-family: var(--font-monospace);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: calc(var(--jst-font-size) * 1.35);
+  text-align: end;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.jst-root.has-line-numbers .jst-document [data-jst-line-number]::before {
+  visibility: visible;
+}
+
+.jst-root .jst-document li[data-jst-line-number]::before,
+.jst-root .jst-document li > [data-jst-line-number]::before {
+  inset-inline-end: calc(100% + var(--jst-font-size) + 8px);
+}
+
 .jst-reader .jst-document .jst-source-line + .jst-source-line {
   margin-top: var(--jst-line-gap);
 }

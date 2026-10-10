@@ -14,6 +14,7 @@ import type JustSimpleTeleprompterPlugin from "./plugin";
 import { resolveTeleprompterAction } from "./input-controller";
 import { ScrollEngine, clampScrollPosition } from "./scroll-engine";
 import { applySourceLineSpacing } from "./source-line-spacing";
+import { applySourceLineNumbers } from "./source-line-numbers";
 import { TouchPedalController } from "./touch-pedal-controller";
 import type { MotionState, ScrollDirection, TeleprompterAction } from "./types";
 import { WakeLockController } from "./wake-lock-controller";
@@ -110,6 +111,10 @@ export class TeleprompterView extends FileView {
       })
     );
     this.addAction("refresh-cw", "Reload note", () => void this.reload());
+    this.registerEvent(this.app.metadataCache.on("changed", (file) => {
+      if (file.path === this.file?.path) this.scheduleSourceReload(file);
+    }));
+    this.registerInterval(window.setInterval(() => this.syncLineNumbers(), 500));
     await this.wakeLock.setEnabled(this.plugin.settings.keepAwake);
 
     if (this.file) {
@@ -146,6 +151,7 @@ export class TeleprompterView extends FileView {
   }
 
   applySettings(): void {
+    this.syncLineNumbers();
     const settings = this.plugin.settings;
     this.rootEl?.style.setProperty("--jst-font-size", `${settings.fontSize}px`);
     this.rootEl?.style.setProperty("--jst-line-gap", `${settings.lineHeight - 1}em`);
@@ -355,6 +361,7 @@ export class TeleprompterView extends FileView {
       } else {
         await MarkdownRenderer.render(this.app, markdown, body, file.path, component);
         applySourceLineSpacing(body);
+        applySourceLineNumbers(body, raw, this.app.metadataCache.getFileCache(file));
       }
 
       if (generation !== this.renderGeneration || file.path !== this.file?.path) {
@@ -398,6 +405,14 @@ export class TeleprompterView extends FileView {
     if (this.file) {
       await this.renderFile(this.file, true);
     }
+  }
+
+  private syncLineNumbers(): void {
+    // Obsidian does not expose its editor preferences in the public Vault types.
+    const vault = this.app.vault as typeof this.app.vault & {
+      getConfig?: (key: string) => unknown;
+    };
+    this.rootEl?.toggleClass("has-line-numbers", vault.getConfig?.("showLineNumber") === true);
   }
 
   private scheduleSourceReload(file: TFile): void {

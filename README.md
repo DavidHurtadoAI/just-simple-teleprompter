@@ -15,6 +15,7 @@ Open any Markdown note, choose a direction, and read. The plugin never modifies 
 - Phone, tablet, and desktop support with one responsive control bar.
 - Automatic source-note refresh without losing position or playback state.
 - A reading cue line and optional screen wake lock.
+- Small, muted source-line numbers when Obsidian's **Editor → Show line numbers** is enabled.
 - Fully local, read-only operation with no accounts, telemetry, or network requests.
 
 ## Controls

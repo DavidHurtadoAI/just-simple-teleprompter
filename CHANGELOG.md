@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.18
+
+- Follow Obsidian's Show line numbers preference with small, muted numbers in the teleprompter margin.
+- Keep source-line numbers aligned with the note, including frontmatter and blank lines, without numbering wrapped screen rows.
+
 ## 0.1.17
 
 - Make Line spacing add space at line breaks written in Markdown, including paragraph and list-item boundaries.
